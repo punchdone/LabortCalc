@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabortCalc</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    h1 { color: #333; }
+    #status { color: #666; font-style: italic; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th { background: #4a90d9; color: white; text-align: left; padding: 10px 12px; }
+    td { padding: 9px 12px; border-bottom: 1px solid #ddd; }
+    tr:hover td { background: #f5f8ff; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>LabortCalc — Innergy Projects</h1>
+  <p id="status">Loading projects...</p>
+  <table id="projects-table" style="display:none">
+    <thead>
+      <tr>
+        <th>Project Name</th>
+        <th>ID</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="projects-body"></tbody>
+  </table>
+
+  <script>
+    fetch('/api/projects')
+      .then(r => r.json())
+      .then(data => {
+        const status = document.getElementById('status');
+        const tbody = document.getElementById('projects-body');
+        const table = document.getElementById('projects-table');
+
+        const projects = Array.isArray(data) ? data : (data.data || data.projects || []);
+
+        if (!projects.length) {
+          status.textContent = 'No projects found.';
+          return;
+        }
+
+        projects.forEach(p => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${p.name || p.projectName || '—'}</td>
+            <td>${p.id || p.projectId || '—'}</td>
+            <td>${p.status || '—'}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        status.style.display = 'none';
+        table.style.display = 'table';
+      })
+      .catch(err => {
+        const status = document.getElementById('status');
+        status.className = 'error';
+        status.textContent = 'Error loading projects: ' + err.message;
+      });
+  </script>
+</body>
+</html>
