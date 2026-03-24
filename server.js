@@ -48,11 +48,7 @@ app.get('/api/projects', async (req, res) => {
       return res.status(500).json({ error: 'Response is not JSON', body: response.text });
     }
 
-    if (!Array.isArray(data)) {
-      console.log('Unexpected response shape (top-level keys):', Object.keys(data));
-    }
-
-    const records = Array.isArray(data) ? data : null;
+    const records = Array.isArray(data) ? data : Array.isArray(data?.Items) ? data.Items : null;
     if (!records) {
       return res.status(500).json({ error: 'Unexpected API response shape', keys: Object.keys(data) });
     }
