@@ -13,10 +13,23 @@
     td { padding: 9px 12px; border-bottom: 1px solid #ddd; }
     tr:hover td { background: #f5f8ff; }
     .error { color: red; }
+    .filter-form { margin-top: 16px; display: flex; align-items: center; gap: 10px; }
+    .filter-form label { font-weight: bold; color: #333; }
+    .filter-form input[type="date"] { padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    .filter-form button { padding: 7px 16px; background: #4a90d9; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    .filter-form button:hover { background: #357abd; }
+    .filter-form button.clear { background: #888; }
+    .filter-form button.clear:hover { background: #666; }
   </style>
 </head>
 <body>
   <h1>LaborCalc — Innergy Projects</h1>
+  <form class="filter-form" id="filter-form">
+    <label for="date-picker">Filter by Created On:</label>
+    <input type="date" id="date-picker">
+    <button type="submit">Filter</button>
+    <button type="button" class="clear" id="clear-btn">Clear</button>
+  </form>
   <p id="status">Loading projects...</p>
   <table id="projects-table" style="display:none">
     <thead>
@@ -31,39 +44,75 @@
   </table>
 
   <script>
+    let allProjects = [];
+
+    function formatDate(val) {
+      return val ? new Date(val).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '—';
+    }
+
+    function renderProjects(projects) {
+      const status = document.getElementById('status');
+      const tbody = document.getElementById('projects-body');
+      const table = document.getElementById('projects-table');
+
+      tbody.innerHTML = '';
+
+      if (!projects.length) {
+        status.textContent = 'No projects found.';
+        status.style.display = '';
+        table.style.display = 'none';
+        return;
+      }
+
+      projects.forEach(p => {
+        const row = document.createElement('tr');
+        const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate;
+        row.innerHTML = `
+          <td>${p.Name || p.ProjectName || p.name || p.projectName || '—'}</td>
+          <td>${p.Number || p.ProjectNumber || p.number || '—'}</td>
+          <td>${p.Status || p.status || '—'}</td>
+          <td>${formatDate(d)}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      status.style.display = 'none';
+      table.style.display = 'table';
+    }
+
     fetch('/api/projects')
       .then(r => r.json())
       .then(data => {
+        allProjects = Array.isArray(data) ? data : (data.data || data.projects || []);
         const status = document.getElementById('status');
-        const tbody = document.getElementById('projects-body');
-        const table = document.getElementById('projects-table');
-
-        const projects = Array.isArray(data) ? data : (data.data || data.projects || []);
-
-        if (!projects.length) {
+        if (!allProjects.length) {
           status.textContent = 'No projects found.';
           return;
         }
-
-        projects.forEach(p => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${p.Name || p.ProjectName || p.name || p.projectName || '—'}</td>
-            <td>${p.Number || p.ProjectNumber || p.number || '—'}</td>
-            <td>${p.Status || p.status || '—'}</td>
-            <td>${(() => { const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate; return d ? new Date(d).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '—'; })()}</td>
-          `;
-          tbody.appendChild(row);
-        });
-
-        status.style.display = 'none';
-        table.style.display = 'table';
+        renderProjects(allProjects);
       })
       .catch(err => {
         const status = document.getElementById('status');
         status.className = 'error';
         status.textContent = 'Error loading projects: ' + err.message;
       });
+
+    document.getElementById('filter-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const picked = document.getElementById('date-picker').value;
+      if (!picked) { renderProjects(allProjects); return; }
+      const filtered = allProjects.filter(p => {
+        const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate;
+        if (!d) return false;
+        return new Date(d).toISOString().slice(0, 10) === picked;
+      });
+      renderProjects(filtered);
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', function() {
+      document.getElementById('date-picker').value = '';
+      renderProjects(allProjects);
+    });
   </script>
 </body>
 </html>
