@@ -45,7 +45,12 @@ app.get('/api/projects', async (req, res) => {
       return res.status(500).json({ error: 'Response is not JSON', body: response.text });
     }
 
-    res.json(data);
+    const cutoff = new Date('2026-03-01');
+    const filtered = Array.isArray(data)
+      ? data.filter(p => p.CreatedOn && new Date(p.CreatedOn) < cutoff)
+      : data;
+
+    res.json(filtered);
   } catch (err) {
     console.error('Request error:', err.message);
     res.status(500).json({ error: err.message });
