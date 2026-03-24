@@ -134,7 +134,13 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
     const records = Array.isArray(data) ? data : Array.isArray(data?.Items) ? data.Items : [];
     console.log(`Shipment items for work order ${workOrderId}: ${records.length}`);
     if (records.length > 0) console.log('First shipment item keys:', Object.keys(records[0]));
-    res.json(records);
+    const slim = records.map(r => ({
+      Name: r.Name || r.ItemName || r.name,
+      Quantity: r.Quantity || r.Qty || r.quantity || r.qty,
+      Description: r.Description || r.description,
+      Status: r.Status || r.status
+    }));
+    res.json(slim);
   } catch (err) {
     console.error('Shipment items request error:', err.message);
     res.status(500).json({ error: err.message });
