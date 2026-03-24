@@ -22,6 +22,7 @@
     .wo-inner th { background: #6aabe0; font-size: 13px; padding: 7px 10px; }
     .wo-inner td { font-size: 13px; padding: 6px 10px; }
     .wo-loading { color: #888; font-style: italic; font-size: 13px; padding: 6px 0; }
+    .wo-qty { color: #888; font-size: 12px; }
     .error { color: red; }
     .filter-form { margin-top: 16px; display: flex; align-items: center; gap: 10px; }
     .filter-form label { font-weight: bold; color: #333; }
@@ -48,6 +49,7 @@
         <th>Number</th>
         <th>Status</th>
         <th>Created On</th>
+        <th>WO Qty</th>
       </tr>
     </thead>
     <tbody id="projects-body"></tbody>
@@ -80,14 +82,20 @@
       </table>`;
     }
 
+    async function fetchWorkOrders(pid) {
+      if (woCache[pid]) return woCache[pid];
+      const res = await fetch(`/api/workorders/${encodeURIComponent(pid)}`);
+      const data = await res.json();
+      const records = Array.isArray(data) ? data : [];
+      woCache[pid] = records;
+      return records;
+    }
+
     async function loadWorkOrders(pid, woDiv) {
       if (woCache[pid]) { woDiv.innerHTML = buildWoTable(woCache[pid]); return; }
       woDiv.innerHTML = '<p class="wo-loading">Loading work orders…</p>';
       try {
-        const res = await fetch(`/api/workorders/${encodeURIComponent(pid)}`);
-        const data = await res.json();
-        const records = Array.isArray(data) ? data : [];
-        woCache[pid] = records;
+        const records = await fetchWorkOrders(pid);
         woDiv.innerHTML = buildWoTable(records);
       } catch (err) {
         woDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
@@ -120,13 +128,14 @@
           <td>${p.Number || p.ProjectNumber || p.number || '—'}</td>
           <td>${p.Status || p.status || '—'}</td>
           <td>${formatDate(d)}</td>
+          <td class="wo-qty" data-pid="${pid}">…</td>
         `;
 
         // Work orders container row
         const woRow = document.createElement('tr');
         woRow.className = 'wo-container';
         const woCell = document.createElement('td');
-        woCell.colSpan = 4;
+        woCell.colSpan = 5;
         const woDiv = document.createElement('div');
         woDiv.className = 'wo-inner';
         woCell.appendChild(woDiv);
@@ -143,6 +152,21 @@
 
       status.style.display = 'none';
       table.style.display = 'table';
+
+      // Fetch WO counts for all visible projects in parallel
+      projects.forEach(p => {
+        const pid = projectId(p);
+        if (!pid) return;
+        fetchWorkOrders(pid)
+          .then(records => {
+            const cell = document.querySelector(`.wo-qty[data-pid="${pid}"]`);
+            if (cell) cell.textContent = records.length;
+          })
+          .catch(() => {
+            const cell = document.querySelector(`.wo-qty[data-pid="${pid}"]`);
+            if (cell) cell.textContent = '—';
+          });
+      });
     }
 
     fetch('/api/projects')
