@@ -170,7 +170,7 @@
 
       const table = document.createElement('table');
       const thead = document.createElement('thead');
-      thead.innerHTML = '<tr><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th><th>Product Line</th><th>Door Style</th><th>Material</th><th>Finish</th></tr>';
+      thead.innerHTML = '<tr><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th><th>Product Line</th><th>Door Style</th><th>Material</th><th>Finish</th><th>Shipment Item Qty</th></tr>';
       table.appendChild(thead);
       const tbody = document.createElement('tbody');
 
@@ -188,12 +188,13 @@
           <td>${customField(w, 'DoorStyle', 'Door Style', 'doorStyle', 'door_style')}</td>
           <td>${customField(w, 'Material', 'material')}</td>
           <td>${customField(w, 'Finish', 'finish')}</td>
+          <td class="wo-qty si-qty" data-wid="${wid}">…</td>
         `;
 
         const siRow = document.createElement('tr');
         siRow.className = 'si-container';
         const siCell = document.createElement('td');
-        siCell.colSpan = 8;
+        siCell.colSpan = 9;
         const siDiv = document.createElement('div');
         siDiv.className = 'si-inner';
         siCell.appendChild(siDiv);
@@ -210,6 +211,21 @@
 
       table.appendChild(tbody);
       woDiv.appendChild(table);
+
+      // Fetch SI counts for all work orders in parallel
+      workorders.forEach(w => {
+        const wid = workOrderId(w);
+        if (!wid) return;
+        fetchShipmentItems(wid)
+          .then(records => {
+            const cell = woDiv.querySelector(`.si-qty[data-wid="${wid}"]`);
+            if (cell) cell.textContent = records.length;
+          })
+          .catch(() => {
+            const cell = woDiv.querySelector(`.si-qty[data-wid="${wid}"]`);
+            if (cell) cell.textContent = '—';
+          });
+      });
     }
 
     async function loadWorkOrders(pid, woDiv) {
