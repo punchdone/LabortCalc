@@ -259,6 +259,8 @@
 
       projects.forEach(p => {
         const pid = projectId(p);
+        console.log('Project object:', JSON.stringify(p));
+        console.log('Resolved projectId:', pid);
         const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate;
 
         const row = document.createElement('tr');
