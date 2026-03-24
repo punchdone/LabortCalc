@@ -171,7 +171,7 @@
 
       const table = document.createElement('table');
       const thead = document.createElement('thead');
-      thead.innerHTML = '<tr><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th><th>Product Line</th><th>Door Style</th><th>Material</th><th>Finish</th><th>Shipment Item Qty</th></tr>';
+      thead.innerHTML = '<tr><th>ID</th><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th><th>Product Line</th><th>Door Style</th><th>Material</th><th>Finish</th><th>Shipment Item Qty</th></tr>';
       table.appendChild(thead);
       const tbody = document.createElement('tbody');
 
@@ -183,6 +183,7 @@
         const row = document.createElement('tr');
         row.className = 'wo-row';
         row.innerHTML = `
+          <td>${wid || '—'}</td>
           <td>${w.Name || w.WorkOrderName || w.name || '—'}</td>
           <td>${w.Number || w.WorkOrderNumber || w.number || '—'}</td>
           <td>${w.Status || w.status || '—'}</td>
@@ -197,7 +198,7 @@
         const siRow = document.createElement('tr');
         siRow.className = 'si-container';
         const siCell = document.createElement('td');
-        siCell.colSpan = 9;
+        siCell.colSpan = 10;
         const siDiv = document.createElement('div');
         siDiv.className = 'si-inner';
         siCell.appendChild(siDiv);
