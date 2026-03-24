@@ -62,6 +62,7 @@
   <table id="projects-table" style="display:none">
     <thead>
       <tr>
+        <th>ID</th>
         <th>Project Name</th>
         <th>Number</th>
         <th>Status</th>
@@ -265,6 +266,7 @@
         const row = document.createElement('tr');
         row.className = 'project-row';
         row.innerHTML = `
+          <td>${pid || '—'}</td>
           <td>${p.Name || p.ProjectName || p.name || p.projectName || '—'}</td>
           <td>${p.Number || p.ProjectNumber || p.number || '—'}</td>
           <td>${p.Status || p.status || '—'}</td>
@@ -275,7 +277,7 @@
         const woRow = document.createElement('tr');
         woRow.className = 'wo-container';
         const woCell = document.createElement('td');
-        woCell.colSpan = 5;
+        woCell.colSpan = 6;
         const woDiv = document.createElement('div');
         woDiv.className = 'wo-inner';
         woCell.appendChild(woDiv);
