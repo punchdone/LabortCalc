@@ -127,8 +127,13 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
       return res.status(500).json({ error: 'Response is not JSON', body: response.text });
     }
 
+    console.log('Shipment items raw type:', Array.isArray(data) ? `array[${data.length}]` : typeof data);
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      console.log('Shipment items response keys:', Object.keys(data));
+    }
     const records = Array.isArray(data) ? data : Array.isArray(data?.Items) ? data.Items : [];
     console.log(`Shipment items for work order ${workOrderId}: ${records.length}`);
+    if (records.length > 0) console.log('First shipment item keys:', Object.keys(records[0]));
     res.json(records);
   } catch (err) {
     console.error('Shipment items request error:', err.message);
