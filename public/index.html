@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LaborCalc</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 40px auto; padding: 0 20px; }
     h1 { color: #333; }
     #status { color: #666; font-style: italic; }
+
+    /* --- Projects (level 1) --- */
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th { background: #4a90d9; color: white; text-align: left; padding: 10px 12px; }
     td { padding: 9px 12px; border-bottom: 1px solid #ddd; }
@@ -15,12 +17,27 @@
     tr.project-row:hover td { background: #f5f8ff; }
     tr.project-row td:first-child::before { content: '▶ '; font-size: 11px; color: #4a90d9; }
     tr.project-row.open td:first-child::before { content: '▼ '; }
-    tr.wo-container td { padding: 0; background: #f9f9f9; }
+    tr.wo-container td { padding: 0; background: #f2f5fb; }
     .wo-inner { padding: 8px 20px 12px 40px; display: none; }
     tr.project-row.open + tr.wo-container .wo-inner { display: block; }
-    .wo-inner table { margin-top: 6px; }
+
+    /* --- Work Orders (level 2) --- */
+    .wo-inner table { margin-top: 6px; width: 100%; border-collapse: collapse; }
     .wo-inner th { background: #6aabe0; font-size: 13px; padding: 7px 10px; }
     .wo-inner td { font-size: 13px; padding: 6px 10px; }
+    tr.wo-row { cursor: pointer; }
+    tr.wo-row:hover td { background: #e8eff9; }
+    tr.wo-row td:first-child::before { content: '▶ '; font-size: 10px; color: #6aabe0; }
+    tr.wo-row.open td:first-child::before { content: '▼ '; }
+    tr.si-container td { padding: 0; background: #eaf0f8; }
+    .si-inner { padding: 6px 16px 10px 50px; display: none; }
+    tr.wo-row.open + tr.si-container .si-inner { display: block; }
+
+    /* --- Shipment Items (level 3) --- */
+    .si-inner table { margin-top: 4px; width: 100%; border-collapse: collapse; }
+    .si-inner th { background: #8ec3e8; font-size: 12px; padding: 6px 9px; }
+    .si-inner td { font-size: 12px; padding: 5px 9px; }
+
     .wo-loading { color: #888; font-style: italic; font-size: 13px; padding: 6px 0; }
     .wo-qty { color: #888; font-size: 12px; }
     .error { color: red; }
@@ -58,6 +75,7 @@
   <script>
     let allProjects = [];
     const woCache = {};
+    const siCache = {};
 
     function formatDate(val) {
       return val ? new Date(val).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '—';
@@ -67,11 +85,14 @@
       return p.Id || p.ProjectId || p.id || p.projectId;
     }
 
+    function workOrderId(w) {
+      return w.Id || w.WorkOrderId || w.id || w.workOrderId;
+    }
+
     function customField(w, ...keys) {
       for (const key of keys) {
         if (w[key] !== undefined && w[key] !== null && w[key] !== '') return w[key];
       }
-      // Also search CustomFields array if present
       const cf = w.CustomFields || w.customFields;
       if (Array.isArray(cf)) {
         for (const key of keys) {
@@ -82,24 +103,54 @@
       return '—';
     }
 
-    function buildWoTable(workorders) {
-      if (!workorders.length) return '<p class="wo-loading">No work orders found.</p>';
-      const rows = workorders.map(w => `
-        <tr>
-          <td>${w.Name || w.WorkOrderName || w.name || '—'}</td>
-          <td>${w.Number || w.WorkOrderNumber || w.number || '—'}</td>
-          <td>${w.Status || w.status || '—'}</td>
-          <td>${formatDate(w.CreatedOn || w.CreatedDate || w.createdOn || w.createdDate)}</td>
-          <td>${customField(w, 'ProductLine', 'Product Line', 'productLine', 'product_line')}</td>
-          <td>${customField(w, 'DoorStyle', 'Door Style', 'doorStyle', 'door_style')}</td>
-          <td>${customField(w, 'Material', 'material')}</td>
-          <td>${customField(w, 'Finish', 'finish')}</td>
-        </tr>`).join('');
-      return `<table>
-        <thead><tr><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th><th>Product Line</th><th>Door Style</th><th>Material</th><th>Finish</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>`;
+    // --- Shipment Items ---
+
+    async function fetchShipmentItems(woId) {
+      if (siCache[woId]) return siCache[woId];
+      const res = await fetch(`/api/shipmentitems/${encodeURIComponent(woId)}`);
+      const data = await res.json();
+      const records = Array.isArray(data) ? data : [];
+      siCache[woId] = records;
+      return records;
     }
+
+    function renderSiContent(items, siDiv) {
+      siDiv.innerHTML = '';
+      if (!items.length) {
+        siDiv.innerHTML = '<p class="wo-loading">No shipment items found.</p>';
+        return;
+      }
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      thead.innerHTML = '<tr><th>Item</th><th>Qty</th><th>Description</th><th>Status</th></tr>';
+      table.appendChild(thead);
+      const tbody = document.createElement('tbody');
+      items.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${s.Name || s.ItemName || s.name || '—'}</td>
+          <td>${s.Quantity || s.Qty || s.quantity || s.qty || '—'}</td>
+          <td>${s.Description || s.description || '—'}</td>
+          <td>${s.Status || s.status || '—'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      siDiv.appendChild(table);
+    }
+
+    async function loadShipmentItems(woId, siDiv) {
+      if (siCache[woId]) { renderSiContent(siCache[woId], siDiv); return; }
+      siDiv.innerHTML = '<p class="wo-loading">Loading shipment items…</p>';
+      try {
+        const records = await fetchShipmentItems(woId);
+        renderSiContent(records, siDiv);
+      } catch (err) {
+        siDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
+      }
+    }
+
+    // --- Work Orders ---
 
     async function fetchWorkOrders(pid) {
       if (woCache[pid]) return woCache[pid];
@@ -110,16 +161,69 @@
       return records;
     }
 
+    function renderWoContent(workorders, woDiv) {
+      woDiv.innerHTML = '';
+      if (!workorders.length) {
+        woDiv.innerHTML = '<p class="wo-loading">No work orders found.</p>';
+        return;
+      }
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      thead.innerHTML = '<tr><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th><th>Product Line</th><th>Door Style</th><th>Material</th><th>Finish</th></tr>';
+      table.appendChild(thead);
+      const tbody = document.createElement('tbody');
+
+      workorders.forEach(w => {
+        const wid = workOrderId(w);
+
+        const row = document.createElement('tr');
+        row.className = 'wo-row';
+        row.innerHTML = `
+          <td>${w.Name || w.WorkOrderName || w.name || '—'}</td>
+          <td>${w.Number || w.WorkOrderNumber || w.number || '—'}</td>
+          <td>${w.Status || w.status || '—'}</td>
+          <td>${formatDate(w.CreatedOn || w.CreatedDate || w.createdOn || w.createdDate)}</td>
+          <td>${customField(w, 'ProductLine', 'Product Line', 'productLine', 'product_line')}</td>
+          <td>${customField(w, 'DoorStyle', 'Door Style', 'doorStyle', 'door_style')}</td>
+          <td>${customField(w, 'Material', 'material')}</td>
+          <td>${customField(w, 'Finish', 'finish')}</td>
+        `;
+
+        const siRow = document.createElement('tr');
+        siRow.className = 'si-container';
+        const siCell = document.createElement('td');
+        siCell.colSpan = 8;
+        const siDiv = document.createElement('div');
+        siDiv.className = 'si-inner';
+        siCell.appendChild(siDiv);
+        siRow.appendChild(siCell);
+
+        row.addEventListener('click', () => {
+          const isOpen = row.classList.toggle('open');
+          if (isOpen && wid) loadShipmentItems(wid, siDiv);
+        });
+
+        tbody.appendChild(row);
+        tbody.appendChild(siRow);
+      });
+
+      table.appendChild(tbody);
+      woDiv.appendChild(table);
+    }
+
     async function loadWorkOrders(pid, woDiv) {
-      if (woCache[pid]) { woDiv.innerHTML = buildWoTable(woCache[pid]); return; }
+      if (woCache[pid]) { renderWoContent(woCache[pid], woDiv); return; }
       woDiv.innerHTML = '<p class="wo-loading">Loading work orders…</p>';
       try {
         const records = await fetchWorkOrders(pid);
-        woDiv.innerHTML = buildWoTable(records);
+        renderWoContent(records, woDiv);
       } catch (err) {
         woDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
       }
     }
+
+    // --- Projects ---
 
     function renderProjects(projects) {
       const status = document.getElementById('status');
@@ -139,7 +243,6 @@
         const pid = projectId(p);
         const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate;
 
-        // Project row
         const row = document.createElement('tr');
         row.className = 'project-row';
         row.innerHTML = `
@@ -150,7 +253,6 @@
           <td class="wo-qty" data-pid="${pid}">…</td>
         `;
 
-        // Work orders container row
         const woRow = document.createElement('tr');
         woRow.className = 'wo-container';
         const woCell = document.createElement('td');
@@ -172,7 +274,7 @@
       status.style.display = 'none';
       table.style.display = 'table';
 
-      // Fetch WO counts for all visible projects in parallel
+      // Fetch WO counts in parallel
       projects.forEach(p => {
         const pid = projectId(p);
         if (!pid) return;

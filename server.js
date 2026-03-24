@@ -100,6 +100,42 @@ app.get('/api/workorders/:projectId', async (req, res) => {
   }
 });
 
+app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
+  const { workOrderId } = req.params;
+  const url = `https://app.innergy.com/api/shipmentItems?workOrderId=${encodeURIComponent(workOrderId)}`;
+  console.log('Fetching:', url);
+
+  try {
+    const response = await httpsGet(url, {
+      'API-Key': process.env.INNERGY_API_KEY,
+      'Accept': 'application/json'
+    });
+
+    console.log('Shipment items status:', response.status, response.statusText);
+
+    if (response.status < 200 || response.status >= 300) {
+      return res.status(response.status).json({
+        error: `Innergy API error: ${response.status} ${response.statusText}`,
+        body: response.text
+      });
+    }
+
+    let data;
+    try {
+      data = JSON.parse(response.text);
+    } catch {
+      return res.status(500).json({ error: 'Response is not JSON', body: response.text });
+    }
+
+    const records = Array.isArray(data) ? data : Array.isArray(data?.Items) ? data.Items : [];
+    console.log(`Shipment items for work order ${workOrderId}: ${records.length}`);
+    res.json(records);
+  } catch (err) {
+    console.error('Shipment items request error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`LabortCalc running at http://localhost:${PORT}`);
 });
