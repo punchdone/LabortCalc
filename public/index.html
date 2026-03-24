@@ -176,6 +176,8 @@
 
       workorders.forEach(w => {
         const wid = workOrderId(w);
+        console.log('Work order object:', JSON.stringify(w));
+        console.log('Resolved workOrderId:', wid);
 
         const row = document.createElement('tr');
         row.className = 'wo-row';
