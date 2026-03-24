@@ -7,8 +7,10 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 
+const INNERGY_BASE_URL = 'https://app.innergy.com/api';
+
 app.get('/api/projects', async (req, res) => {
-  const url = `${process.env.INNERGY_BASE_URL}/projects`;
+  const url = `${INNERGY_BASE_URL}/projects`;
   console.log('Fetching:', url);
 
   try {
