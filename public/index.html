@@ -47,9 +47,9 @@
         projects.forEach(p => {
           const row = document.createElement('tr');
           row.innerHTML = `
-            <td>${p.name || p.projectName || '—'}</td>
-            <td>${p.id || p.projectId || '—'}</td>
-            <td>${p.status || '—'}</td>
+            <td>${p.Name || p.ProjectName || p.name || p.projectName || '—'}</td>
+            <td>${p.Id || p.ProjectId || p.id || p.projectId || '—'}</td>
+            <td>${p.Status || p.status || '—'}</td>
           `;
           tbody.appendChild(row);
         });
