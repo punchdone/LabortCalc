@@ -53,6 +53,7 @@ app.get('/api/projects', async (req, res) => {
       ? data.filter(p => p.CreatedOn && new Date(p.CreatedOn) < cutoff)
       : data;
 
+    console.log(`Innergy projects fetched successfully: ${Array.isArray(filtered) ? filtered.length : 'N/A'} project(s)`);
     res.json(filtered);
   } catch (err) {
     console.error('Request error:', err.message);
