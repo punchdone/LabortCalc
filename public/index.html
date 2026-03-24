@@ -43,7 +43,7 @@
     .error { color: red; }
     .filter-form { margin-top: 16px; display: flex; align-items: center; gap: 10px; }
     .filter-form label { font-weight: bold; color: #333; }
-    .filter-form input[type="date"] { padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    .filter-form input[type="date"], .filter-form input[type="text"] { padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
     .filter-form button { padding: 7px 16px; background: #4a90d9; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
     .filter-form button:hover { background: #357abd; }
     .filter-form button.clear { background: #888; }
@@ -53,7 +53,11 @@
 <body>
   <h1>LaborCalc — Innergy Projects</h1>
   <form class="filter-form" id="filter-form">
-    <label for="date-picker">Filter by Created On:</label>
+    <label for="name-filter">Name:</label>
+    <input type="text" id="name-filter" placeholder="Project name…">
+    <label for="number-filter">Number:</label>
+    <input type="text" id="number-filter" placeholder="Project number…">
+    <label for="date-picker">Created On:</label>
     <input type="date" id="date-picker">
     <button type="submit">Filter</button>
     <button type="button" class="clear" id="clear-btn">Clear</button>
@@ -329,16 +333,29 @@
     document.getElementById('filter-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const picked = document.getElementById('date-picker').value;
-      if (!picked) { renderProjects(allProjects); return; }
+      const nameQ = document.getElementById('name-filter').value.trim().toLowerCase();
+      const numQ  = document.getElementById('number-filter').value.trim().toLowerCase();
       const filtered = allProjects.filter(p => {
-        const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate;
-        if (!d) return false;
-        return new Date(d).toISOString().slice(0, 10) === picked;
+        if (nameQ) {
+          const name = (p.Name || p.ProjectName || p.name || p.projectName || '').toLowerCase();
+          if (!name.includes(nameQ)) return false;
+        }
+        if (numQ) {
+          const num = String(p.Number || p.ProjectNumber || p.number || '').toLowerCase();
+          if (!num.includes(numQ)) return false;
+        }
+        if (picked) {
+          const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate;
+          if (!d || new Date(d).toISOString().slice(0, 10) !== picked) return false;
+        }
+        return true;
       });
       renderProjects(filtered);
     });
 
     document.getElementById('clear-btn').addEventListener('click', function() {
+      document.getElementById('name-filter').value = '';
+      document.getElementById('number-filter').value = '';
       document.getElementById('date-picker').value = '';
       renderProjects(allProjects);
     });
