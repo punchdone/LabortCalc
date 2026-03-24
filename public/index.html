@@ -161,7 +161,7 @@
       return records;
     }
 
-    function renderWoContent(workorders, woDiv) {
+    function renderWoContent(workorders, woDiv, pid) {
       woDiv.innerHTML = '';
       if (!workorders.length) {
         woDiv.innerHTML = '<p class="wo-loading">No work orders found.</p>';
@@ -177,7 +177,7 @@
       workorders.forEach(w => {
         const wid = workOrderId(w);
         console.log('Work order object:', JSON.stringify(w));
-        console.log('Resolved workOrderId:', wid);
+        console.log('ProjectId:', pid, '| Resolved workOrderId:', wid);
 
         const row = document.createElement('tr');
         row.className = 'wo-row';
@@ -231,11 +231,11 @@
     }
 
     async function loadWorkOrders(pid, woDiv) {
-      if (woCache[pid]) { renderWoContent(woCache[pid], woDiv); return; }
+      if (woCache[pid]) { renderWoContent(woCache[pid], woDiv, pid); return; }
       woDiv.innerHTML = '<p class="wo-loading">Loading work orders…</p>';
       try {
         const records = await fetchWorkOrders(pid);
-        renderWoContent(records, woDiv);
+        renderWoContent(records, woDiv, pid);
       } catch (err) {
         woDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
       }
