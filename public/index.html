@@ -57,8 +57,10 @@
     <input type="text" id="name-filter" placeholder="Project name…">
     <label for="number-filter">Number:</label>
     <input type="text" id="number-filter" placeholder="Project number…">
-    <label for="date-picker">Created On:</label>
-    <input type="date" id="date-picker">
+    <label for="date-from">Created On:</label>
+    <input type="date" id="date-from">
+    <span>–</span>
+    <input type="date" id="date-to">
     <button type="submit">Filter</button>
     <button type="button" class="clear" id="clear-btn">Clear</button>
   </form>
@@ -332,7 +334,8 @@
 
     document.getElementById('filter-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      const picked = document.getElementById('date-picker').value;
+      const dateFrom = document.getElementById('date-from').value;
+      const dateTo   = document.getElementById('date-to').value;
       const nameQ = document.getElementById('name-filter').value.trim().toLowerCase();
       const numQ  = document.getElementById('number-filter').value.trim().toLowerCase();
       const filtered = allProjects.filter(p => {
@@ -344,9 +347,12 @@
           const num = String(p.Number || p.ProjectNumber || p.number || '').toLowerCase();
           if (!num.includes(numQ)) return false;
         }
-        if (picked) {
+        if (dateFrom || dateTo) {
           const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate;
-          if (!d || new Date(d).toISOString().slice(0, 10) !== picked) return false;
+          if (!d) return false;
+          const iso = new Date(d).toISOString().slice(0, 10);
+          if (dateFrom && iso < dateFrom) return false;
+          if (dateTo   && iso > dateTo)   return false;
         }
         return true;
       });
@@ -356,7 +362,8 @@
     document.getElementById('clear-btn').addEventListener('click', function() {
       document.getElementById('name-filter').value = '';
       document.getElementById('number-filter').value = '';
-      document.getElementById('date-picker').value = '';
+      document.getElementById('date-from').value = '';
+      document.getElementById('date-to').value = '';
       renderProjects(allProjects);
     });
   </script>
