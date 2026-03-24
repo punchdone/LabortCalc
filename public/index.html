@@ -51,7 +51,7 @@
             <td>${p.Name || p.ProjectName || p.name || p.projectName || '—'}</td>
             <td>${p.Number || p.ProjectNumber || p.number || '—'}</td>
             <td>${p.Status || p.status || '—'}</td>
-            <td>${p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate || '—'}</td>
+            <td>${(() => { const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate; return d ? new Date(d).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '—'; })()}</td>
           `;
           tbody.appendChild(row);
         });
