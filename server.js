@@ -41,7 +41,8 @@ app.get('/api/projects', async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error('Fetch error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.error('Stack:', err.stack);
+    res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
 
