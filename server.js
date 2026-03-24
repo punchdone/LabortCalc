@@ -48,10 +48,17 @@ app.get('/api/projects', async (req, res) => {
       return res.status(500).json({ error: 'Response is not JSON', body: response.text });
     }
 
+    if (!Array.isArray(data)) {
+      console.log('Unexpected response shape (top-level keys):', Object.keys(data));
+    }
+
+    const records = Array.isArray(data) ? data : null;
+    if (!records) {
+      return res.status(500).json({ error: 'Unexpected API response shape', keys: Object.keys(data) });
+    }
+
     const cutoff = new Date('2026-03-01');
-    const filtered = Array.isArray(data)
-      ? data.filter(p => p.CreatedOn && new Date(p.CreatedOn) > cutoff)
-      : data;
+    const filtered = records.filter(p => p.CreatedOn && new Date(p.CreatedOn) > cutoff);
 
     console.log(`Innergy projects fetched successfully: ${Array.isArray(filtered) ? filtered.length : 'N/A'} project(s)`);
     res.json(filtered);
