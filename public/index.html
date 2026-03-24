@@ -22,8 +22,9 @@
     <thead>
       <tr>
         <th>Project Name</th>
-        <th>ID</th>
+        <th>Number</th>
         <th>Status</th>
+        <th>Created On</th>
       </tr>
     </thead>
     <tbody id="projects-body"></tbody>
@@ -48,8 +49,9 @@
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${p.Name || p.ProjectName || p.name || p.projectName || '—'}</td>
-            <td>${p.Id || p.ProjectId || p.id || p.projectId || '—'}</td>
+            <td>${p.Number || p.ProjectNumber || p.number || '—'}</td>
             <td>${p.Status || p.status || '—'}</td>
+            <td>${p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate || '—'}</td>
           `;
           tbody.appendChild(row);
         });
