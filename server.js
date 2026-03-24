@@ -7,12 +7,15 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 
-function httpsGet(url, headers) {
+function httpsGet(url, headers, timeoutMs = 15000) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, { headers }, (res) => {
       let body = '';
       res.on('data', chunk => body += chunk);
       res.on('end', () => resolve({ status: res.statusCode, statusText: res.statusMessage, text: body }));
+    });
+    req.setTimeout(timeoutMs, () => {
+      req.destroy(new Error(`Request timed out after ${timeoutMs}ms`));
     });
     req.on('error', reject);
   });
