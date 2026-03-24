@@ -5,13 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LaborCalc</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    body { font-family: Arial, sans-serif; max-width: 1100px; margin: 40px auto; padding: 0 20px; }
     h1 { color: #333; }
     #status { color: #666; font-style: italic; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th { background: #4a90d9; color: white; text-align: left; padding: 10px 12px; }
     td { padding: 9px 12px; border-bottom: 1px solid #ddd; }
-    tr:hover td { background: #f5f8ff; }
+    tr.project-row { cursor: pointer; }
+    tr.project-row:hover td { background: #f5f8ff; }
+    tr.project-row td:first-child::before { content: '▶ '; font-size: 11px; color: #4a90d9; }
+    tr.project-row.open td:first-child::before { content: '▼ '; }
+    tr.wo-container td { padding: 0; background: #f9f9f9; }
+    .wo-inner { padding: 8px 20px 12px 40px; display: none; }
+    tr.project-row.open + tr.wo-container .wo-inner { display: block; }
+    .wo-inner table { margin-top: 6px; }
+    .wo-inner th { background: #6aabe0; font-size: 13px; padding: 7px 10px; }
+    .wo-inner td { font-size: 13px; padding: 6px 10px; }
+    .wo-loading { color: #888; font-style: italic; font-size: 13px; padding: 6px 0; }
     .error { color: red; }
     .filter-form { margin-top: 16px; display: flex; align-items: center; gap: 10px; }
     .filter-form label { font-weight: bold; color: #333; }
@@ -45,9 +55,43 @@
 
   <script>
     let allProjects = [];
+    const woCache = {};
 
     function formatDate(val) {
       return val ? new Date(val).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '—';
+    }
+
+    function projectId(p) {
+      return p.Id || p.ProjectId || p.id || p.projectId;
+    }
+
+    function buildWoTable(workorders) {
+      if (!workorders.length) return '<p class="wo-loading">No work orders found.</p>';
+      const rows = workorders.map(w => `
+        <tr>
+          <td>${w.Name || w.WorkOrderName || w.name || '—'}</td>
+          <td>${w.Number || w.WorkOrderNumber || w.number || '—'}</td>
+          <td>${w.Status || w.status || '—'}</td>
+          <td>${formatDate(w.CreatedOn || w.CreatedDate || w.createdOn || w.createdDate)}</td>
+        </tr>`).join('');
+      return `<table>
+        <thead><tr><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+
+    async function loadWorkOrders(pid, woDiv) {
+      if (woCache[pid]) { woDiv.innerHTML = buildWoTable(woCache[pid]); return; }
+      woDiv.innerHTML = '<p class="wo-loading">Loading work orders…</p>';
+      try {
+        const res = await fetch(`/api/workorders/${encodeURIComponent(pid)}`);
+        const data = await res.json();
+        const records = Array.isArray(data) ? data : [];
+        woCache[pid] = records;
+        woDiv.innerHTML = buildWoTable(records);
+      } catch (err) {
+        woDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
+      }
     }
 
     function renderProjects(projects) {
@@ -65,15 +109,36 @@
       }
 
       projects.forEach(p => {
-        const row = document.createElement('tr');
+        const pid = projectId(p);
         const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate;
+
+        // Project row
+        const row = document.createElement('tr');
+        row.className = 'project-row';
         row.innerHTML = `
           <td>${p.Name || p.ProjectName || p.name || p.projectName || '—'}</td>
           <td>${p.Number || p.ProjectNumber || p.number || '—'}</td>
           <td>${p.Status || p.status || '—'}</td>
           <td>${formatDate(d)}</td>
         `;
+
+        // Work orders container row
+        const woRow = document.createElement('tr');
+        woRow.className = 'wo-container';
+        const woCell = document.createElement('td');
+        woCell.colSpan = 4;
+        const woDiv = document.createElement('div');
+        woDiv.className = 'wo-inner';
+        woCell.appendChild(woDiv);
+        woRow.appendChild(woCell);
+
+        row.addEventListener('click', () => {
+          const isOpen = row.classList.toggle('open');
+          if (isOpen && pid) loadWorkOrders(pid, woDiv);
+        });
+
         tbody.appendChild(row);
+        tbody.appendChild(woRow);
       });
 
       status.style.display = 'none';
@@ -85,10 +150,7 @@
       .then(data => {
         allProjects = Array.isArray(data) ? data : (data.data || data.projects || []);
         const status = document.getElementById('status');
-        if (!allProjects.length) {
-          status.textContent = 'No projects found.';
-          return;
-        }
+        if (!allProjects.length) { status.textContent = 'No projects found.'; return; }
         renderProjects(allProjects);
       })
       .catch(err => {
