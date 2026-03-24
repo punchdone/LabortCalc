@@ -53,7 +53,7 @@ app.get('/api/projects', async (req, res) => {
       return res.status(500).json({ error: 'Unexpected API response shape', keys: Object.keys(data) });
     }
 
-    const cutoff = new Date('2026-03-01');
+    const cutoff = new Date('2026-01-01');
     const filtered = records.filter(p => p.CreatedOn && new Date(p.CreatedOn) > cutoff);
 
     console.log(`Innergy projects fetched successfully: ${Array.isArray(filtered) ? filtered.length : 'N/A'} project(s)`);
