@@ -176,8 +176,8 @@
 
       workorders.forEach(w => {
         const wid = workOrderId(w);
-        console.log('Work order object:', JSON.stringify(w));
-        console.log('ProjectId:', pid, '| Resolved workOrderId:', wid);
+        console.log('WorkOrderId:', wid, '| Work order object:', JSON.stringify(w));
+        console.log('WorkOrderId:', wid, '| ProjectId:', pid);
 
         const row = document.createElement('tr');
         row.className = 'wo-row';
@@ -259,8 +259,7 @@
 
       projects.forEach(p => {
         const pid = projectId(p);
-        console.log('Project object:', JSON.stringify(p));
-        console.log('Resolved projectId:', pid);
+        console.log('ProjectId:', pid, '| Project object:', JSON.stringify(p));
         const d = p.CreatedOn || p.CreatedDate || p.createdOn || p.createdDate;
 
         const row = document.createElement('tr');
