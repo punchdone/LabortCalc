@@ -67,6 +67,21 @@
       return p.Id || p.ProjectId || p.id || p.projectId;
     }
 
+    function customField(w, ...keys) {
+      for (const key of keys) {
+        if (w[key] !== undefined && w[key] !== null && w[key] !== '') return w[key];
+      }
+      // Also search CustomFields array if present
+      const cf = w.CustomFields || w.customFields;
+      if (Array.isArray(cf)) {
+        for (const key of keys) {
+          const match = cf.find(f => (f.Name || f.name || '').toLowerCase() === key.toLowerCase());
+          if (match) return match.Value || match.value || '—';
+        }
+      }
+      return '—';
+    }
+
     function buildWoTable(workorders) {
       if (!workorders.length) return '<p class="wo-loading">No work orders found.</p>';
       const rows = workorders.map(w => `
@@ -75,9 +90,13 @@
           <td>${w.Number || w.WorkOrderNumber || w.number || '—'}</td>
           <td>${w.Status || w.status || '—'}</td>
           <td>${formatDate(w.CreatedOn || w.CreatedDate || w.createdOn || w.createdDate)}</td>
+          <td>${customField(w, 'ProductLine', 'Product Line', 'productLine', 'product_line')}</td>
+          <td>${customField(w, 'DoorStyle', 'Door Style', 'doorStyle', 'door_style')}</td>
+          <td>${customField(w, 'Material', 'material')}</td>
+          <td>${customField(w, 'Finish', 'finish')}</td>
         </tr>`).join('');
       return `<table>
-        <thead><tr><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th></tr></thead>
+        <thead><tr><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th><th>Product Line</th><th>Door Style</th><th>Material</th><th>Finish</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
     }
