@@ -147,11 +147,12 @@
     }
 
     async function loadShipmentItems(woId, siDiv) {
-      if (siCache[woId]) { renderSiContent(siCache[woId], siDiv); return; }
+      if (siCache[woId]) { renderSiContent(siCache[woId], siDiv); return siCache[woId]; }
       siDiv.innerHTML = '<p class="wo-loading">Loading shipment items…</p>';
       try {
         const records = await fetchShipmentItems(woId);
         renderSiContent(records, siDiv);
+        return records;
       } catch (err) {
         siDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
       }
@@ -210,9 +211,14 @@
         siCell.appendChild(siDiv);
         siRow.appendChild(siCell);
 
+        const qtyCell = row.querySelector('.si-qty');
         row.addEventListener('click', () => {
           const isOpen = row.classList.toggle('open');
-          if (isOpen && wid) loadShipmentItems(wid, siDiv);
+          if (isOpen && wid) {
+            loadShipmentItems(wid, siDiv).then(records => {
+              if (qtyCell && records) qtyCell.textContent = records.length;
+            });
+          }
         });
 
         tbody.appendChild(row);
@@ -221,21 +227,6 @@
 
       table.appendChild(tbody);
       woDiv.appendChild(table);
-
-      // Fetch SI counts for all work orders in parallel
-      workorders.forEach(w => {
-        const wid = workOrderId(w);
-        if (!wid) return;
-        fetchShipmentItems(wid)
-          .then(records => {
-            const cell = woDiv.querySelector(`.si-qty[data-wid="${wid}"]`);
-            if (cell) cell.textContent = records.length;
-          })
-          .catch(() => {
-            const cell = woDiv.querySelector(`.si-qty[data-wid="${wid}"]`);
-            if (cell) cell.textContent = '—';
-          });
-      });
     }
 
     async function loadWorkOrders(pid, woDiv) {

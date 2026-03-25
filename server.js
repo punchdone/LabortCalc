@@ -109,7 +109,7 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
     const response = await httpsGet(url, {
       'API-Key': process.env.INNERGY_API_KEY,
       'Accept': 'application/json'
-    });
+    }, 30000);
 
     console.log('Shipment items status:', response.status, response.statusText);
 
@@ -131,8 +131,9 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
     if (data && typeof data === 'object' && !Array.isArray(data)) {
       console.log('Shipment items response keys:', Object.keys(data));
     }
-    const records = Array.isArray(data) ? data : Array.isArray(data?.Items) ? data.Items : [];
-    console.log(`Shipment items for work order ${workOrderId}: ${records.length}`);
+    const allRecords = Array.isArray(data) ? data : Array.isArray(data?.Items) ? data.Items : [];
+    const records = allRecords.slice(0, 200);
+    console.log(`Shipment items for work order ${workOrderId}: ${allRecords.length} total, returning ${records.length}`);
     if (records.length > 0) console.log('First shipment item keys:', Object.keys(records[0]));
     const slim = records.map(r => ({
       Name: r.Name || r.ItemName || r.name,
