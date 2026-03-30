@@ -47,6 +47,7 @@
     /* Ensure shipment items columns are never hidden */
     .si-inner th, .si-inner td { display: table-cell !important; }
 
+    .si-summary { font-size: 13px; font-weight: bold; color: #2e6336; margin: 6px 0 4px 0; }
     .wo-loading { color: #888; font-style: italic; font-size: 13px; padding: 6px 0; }
     .wo-qty { color: #888; font-size: 12px; }
     .error { color: red; }
@@ -149,6 +150,11 @@
         siDiv.innerHTML = '<p class="wo-loading">No shipment items found.</p>';
         return;
       }
+      const totalPanels = items.reduce((sum, s) => sum + (s.Quantity || 0), 0);
+      const summary = document.createElement('p');
+      summary.className = 'si-summary';
+      summary.textContent = `Panels required: ${totalPanels}`;
+      siDiv.appendChild(summary);
       const title = document.createElement('div');
       title.className = 'section-title';
       title.textContent = 'Shipment Items';
