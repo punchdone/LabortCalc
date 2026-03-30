@@ -129,16 +129,16 @@
       }
       const table = document.createElement('table');
       const thead = document.createElement('thead');
-      thead.innerHTML = '<tr><th>Item</th><th>Qty</th><th>Description</th><th>Status</th></tr>';
+      thead.innerHTML = '<tr><th>Item</th><th>Qty</th><th>Description</th><th>Qty Completed</th></tr>';
       table.appendChild(thead);
       const tbody = document.createElement('tbody');
       items.forEach(s => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${s.Name || s.ItemName || s.name || '—'}</td>
-          <td>${s.Quantity || s.Qty || s.quantity || s.qty || '—'}</td>
-          <td>${s.Description || s.description || '—'}</td>
-          <td>${s.Status || s.status || '—'}</td>
+          <td>${s.Name || '—'}</td>
+          <td>${s.Quantity ?? '—'}</td>
+          <td>${s.Description || '—'}</td>
+          <td>${s.QuantityCompleted ?? '—'}</td>
         `;
         tbody.appendChild(tr);
       });

@@ -131,15 +131,16 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
     if (data && typeof data === 'object' && !Array.isArray(data)) {
       console.log('Shipment items response keys:', Object.keys(data));
     }
-    const allRecords = Array.isArray(data) ? data : Array.isArray(data?.Items) ? data.Items : [];
+    const allRecords = Array.isArray(data) ? data
+      : Array.isArray(data?.data) ? data.data
+      : Array.isArray(data?.Items) ? data.Items : [];
     const records = allRecords.slice(0, 200);
-    console.log(`Shipment items for work order ${workOrderId}: ${allRecords.length} total, returning ${records.length}`);
-    if (records.length > 0) console.log('First shipment item keys:', Object.keys(records[0]));
+    console.log(`Shipment items for work order ${workOrderId}: ${data?.totalCount ?? allRecords.length} total, returning ${records.length}`);
     const slim = records.map(r => ({
       Name: r.Name || r.ItemName || r.name,
-      Quantity: r.Quantity || r.Qty || r.quantity || r.qty,
+      Quantity: Math.round((r.Quantity ?? r.Qty ?? r.quantity ?? r.qty) * 1000) / 1000,
       Description: r.Description || r.description,
-      Status: r.Status || r.status
+      QuantityCompleted: Math.round((r.QuantityCompleted ?? 0) * 1000) / 1000
     }));
     res.json(slim);
   } catch (err) {
