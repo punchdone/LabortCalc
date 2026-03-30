@@ -141,7 +141,7 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
       const totalCount = data?.totalCount ?? pageRecords.length;
       console.log(`Shipment items page ${page}: got ${pageRecords.length}, total ${totalCount}`);
 
-      if (allRecords.length >= totalCount || pageRecords.length < pageSize) break;
+      if (allRecords.length >= totalCount || pageRecords.length === 0) break;
       page++;
     }
 
