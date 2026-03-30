@@ -38,6 +38,9 @@
     .si-inner th { background: #82bf90; font-size: 12px; padding: 6px 9px; }
     .si-inner td { font-size: 12px; padding: 5px 9px; }
 
+    .section-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: #3a7d44; display: inline-block; padding: 3px 10px 3px 10px; border-radius: 4px 4px 0 0; margin-bottom: -1px; }
+    .wo-inner .section-title { background: #5a9e6a; font-size: 10px; }
+    .si-inner .section-title { background: #82bf90; font-size: 10px; }
     .wo-loading { color: #888; font-style: italic; font-size: 13px; padding: 6px 0; }
     .wo-qty { color: #888; font-size: 12px; }
     .error { color: red; }
@@ -70,6 +73,7 @@
     <button type="button" class="clear" id="clear-btn">Clear</button>
   </form>
   <p id="status">Loading projects...</p>
+  <div class="section-title">Projects</div>
   <table id="projects-table" style="display:none">
     <thead>
       <tr>
@@ -132,6 +136,10 @@
         siDiv.innerHTML = '<p class="wo-loading">No shipment items found.</p>';
         return;
       }
+      const title = document.createElement('div');
+      title.className = 'section-title';
+      title.textContent = 'Shipment Items';
+      siDiv.appendChild(title);
       const table = document.createElement('table');
       const thead = document.createElement('thead');
       thead.innerHTML = '<tr><th>Item</th><th>Qty</th><th>Description</th><th>Qty Completed</th></tr>';
@@ -181,6 +189,10 @@
         return;
       }
 
+      const title = document.createElement('div');
+      title.className = 'section-title';
+      title.textContent = 'Work Orders';
+      woDiv.appendChild(title);
       const table = document.createElement('table');
       const thead = document.createElement('thead');
       thead.innerHTML = '<tr><th>ID</th><th>Work Order</th><th>Number</th><th>Status</th><th>Created On</th><th>Product Line</th><th>Door Name</th><th>Material</th><th>Finish</th><th>Shipment Item Qty</th></tr>';
