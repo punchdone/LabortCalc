@@ -44,6 +44,8 @@
     /* Hide ID columns — remove these two lines to show them again */
     #projects-table thead th:first-child, #projects-table tr.project-row td:first-child { display: none; }
     .wo-inner > table thead th:first-child, .wo-inner tr.wo-row td:first-child { display: none; }
+    /* Ensure shipment items columns are never hidden */
+    .si-inner th, .si-inner td { display: table-cell !important; }
 
     .wo-loading { color: #888; font-style: italic; font-size: 13px; padding: 6px 0; }
     .wo-qty { color: #888; font-size: 12px; }
