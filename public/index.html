@@ -11,31 +11,31 @@
 
     /* --- Projects (level 1) --- */
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th { background: #4a90d9; color: white; text-align: left; padding: 10px 12px; }
+    th { background: #3a7d44; color: white; text-align: left; padding: 10px 12px; }
     td { padding: 9px 12px; border-bottom: 1px solid #ddd; }
     tr.project-row { cursor: pointer; }
-    tr.project-row:hover td { background: #f5f8ff; }
-    tr.project-row td:first-child::before { content: '▶ '; font-size: 11px; color: #4a90d9; }
+    tr.project-row:hover td { background: #f2f7f2; }
+    tr.project-row td:first-child::before { content: '▶ '; font-size: 11px; color: #3a7d44; }
     tr.project-row.open td:first-child::before { content: '▼ '; }
-    tr.wo-container td { padding: 0; background: #f2f5fb; }
+    tr.wo-container td { padding: 0; background: #f0f5f0; }
     .wo-inner { padding: 8px 20px 12px 40px; display: none; }
     tr.project-row.open + tr.wo-container .wo-inner { display: block; }
 
     /* --- Work Orders (level 2) --- */
     .wo-inner table { margin-top: 6px; width: 100%; border-collapse: collapse; }
-    .wo-inner th { background: #6aabe0; font-size: 13px; padding: 7px 10px; }
+    .wo-inner th { background: #5a9e6a; font-size: 13px; padding: 7px 10px; }
     .wo-inner td { font-size: 13px; padding: 6px 10px; }
     tr.wo-row { cursor: pointer; }
-    tr.wo-row:hover td { background: #e8eff9; }
-    tr.wo-row td:first-child::before { content: '▶ '; font-size: 10px; color: #6aabe0; }
+    tr.wo-row:hover td { background: #e4f0e6; }
+    tr.wo-row td:first-child::before { content: '▶ '; font-size: 10px; color: #5a9e6a; }
     tr.wo-row.open td:first-child::before { content: '▼ '; }
-    tr.si-container td { padding: 0; background: #eaf0f8; }
+    tr.si-container td { padding: 0; background: #e8f2ea; }
     .si-inner { padding: 6px 16px 10px 50px; display: none; }
     tr.wo-row.open + tr.si-container .si-inner { display: block; }
 
     /* --- Shipment Items (level 3) --- */
     .si-inner table { margin-top: 4px; width: 100%; border-collapse: collapse; }
-    .si-inner th { background: #8ec3e8; font-size: 12px; padding: 6px 9px; }
+    .si-inner th { background: #82bf90; font-size: 12px; padding: 6px 9px; }
     .si-inner td { font-size: 12px; padding: 5px 9px; }
 
     .wo-loading { color: #888; font-style: italic; font-size: 13px; padding: 6px 0; }
@@ -44,8 +44,8 @@
     .filter-form { margin-top: 16px; display: flex; align-items: center; gap: 10px; }
     .filter-form label { font-weight: bold; color: #333; }
     .filter-form input[type="date"], .filter-form input[type="text"] { padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-    .filter-form button { padding: 7px 16px; background: #4a90d9; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-    .filter-form button:hover { background: #357abd; }
+    .filter-form button { padding: 7px 16px; background: #3a7d44; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    .filter-form button:hover { background: #2e6336; }
     .filter-form button.clear { background: #888; }
     .filter-form button.clear:hover { background: #666; }
   </style>
