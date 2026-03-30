@@ -230,11 +230,12 @@
     }
 
     async function loadWorkOrders(pid, woDiv) {
-      if (woCache[pid]) { renderWoContent(woCache[pid], woDiv, pid); return; }
+      if (woCache[pid]) { renderWoContent(woCache[pid], woDiv, pid); return woCache[pid]; }
       woDiv.innerHTML = '<p class="wo-loading">Loading work orders…</p>';
       try {
         const records = await fetchWorkOrders(pid);
         renderWoContent(records, woDiv, pid);
+        return records;
       } catch (err) {
         woDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
       }
@@ -281,9 +282,14 @@
         woCell.appendChild(woDiv);
         woRow.appendChild(woCell);
 
+        const qtyCell = row.querySelector('.wo-qty');
         row.addEventListener('click', () => {
           const isOpen = row.classList.toggle('open');
-          if (isOpen && pid) loadWorkOrders(pid, woDiv);
+          if (isOpen && pid) {
+            loadWorkOrders(pid, woDiv).then(records => {
+              if (qtyCell && records) qtyCell.textContent = records.length;
+            });
+          }
         });
 
         tbody.appendChild(row);
@@ -292,21 +298,6 @@
 
       status.style.display = 'none';
       table.style.display = 'table';
-
-      // Fetch WO counts in parallel
-      projects.forEach(p => {
-        const pid = projectId(p);
-        if (!pid) return;
-        fetchWorkOrders(pid)
-          .then(records => {
-            const cell = document.querySelector(`.wo-qty[data-pid="${pid}"]`);
-            if (cell) cell.textContent = records.length;
-          })
-          .catch(() => {
-            const cell = document.querySelector(`.wo-qty[data-pid="${pid}"]`);
-            if (cell) cell.textContent = '—';
-          });
-      });
     }
 
     fetch('/api/projects')
