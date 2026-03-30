@@ -102,42 +102,52 @@ app.get('/api/workorders/:projectId', async (req, res) => {
 
 app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
   const { workOrderId } = req.params;
-  const url = `https://app.innergy.com/api/v2-unstable/project-management/work-orders/${encodeURIComponent(workOrderId)}/shipment-items`;
-  console.log('Fetching:', url);
+  const base = `https://app.innergy.com/api/v2-unstable/project-management/work-orders/${encodeURIComponent(workOrderId)}/shipment-items`;
 
   try {
-    const response = await httpsGet(url, {
-      'API-Key': process.env.INNERGY_API_KEY,
-      'Accept': 'application/json'
-    }, 30000);
+    const allRecords = [];
+    let page = 1;
+    const pageSize = 100;
 
-    console.log('Shipment items status:', response.status, response.statusText);
+    while (true) {
+      const url = `${base}?page=${page}&pageSize=${pageSize}`;
+      console.log('Fetching:', url);
 
-    if (response.status < 200 || response.status >= 300) {
-      return res.status(response.status).json({
-        error: `Innergy API error: ${response.status} ${response.statusText}`,
-        body: response.text
-      });
+      const response = await httpsGet(url, {
+        'API-Key': process.env.INNERGY_API_KEY,
+        'Accept': 'application/json'
+      }, 30000);
+
+      if (response.status < 200 || response.status >= 300) {
+        return res.status(response.status).json({
+          error: `Innergy API error: ${response.status} ${response.statusText}`,
+          body: response.text
+        });
+      }
+
+      let data;
+      try {
+        data = JSON.parse(response.text);
+      } catch {
+        return res.status(500).json({ error: 'Response is not JSON', body: response.text });
+      }
+
+      const pageRecords = Array.isArray(data) ? data
+        : Array.isArray(data?.data) ? data.data
+        : Array.isArray(data?.Items) ? data.Items : [];
+
+      allRecords.push(...pageRecords);
+
+      const totalCount = data?.totalCount ?? pageRecords.length;
+      console.log(`Shipment items page ${page}: got ${pageRecords.length}, total ${totalCount}`);
+
+      if (allRecords.length >= totalCount || pageRecords.length < pageSize) break;
+      page++;
     }
 
-    let data;
-    try {
-      data = JSON.parse(response.text);
-    } catch {
-      return res.status(500).json({ error: 'Response is not JSON', body: response.text });
-    }
-
-    console.log('Shipment items raw type:', Array.isArray(data) ? `array[${data.length}]` : typeof data);
-    if (data && typeof data === 'object' && !Array.isArray(data)) {
-      console.log('Shipment items response keys:', Object.keys(data));
-    }
-    const allRecords = Array.isArray(data) ? data
-      : Array.isArray(data?.data) ? data.data
-      : Array.isArray(data?.Items) ? data.Items : [];
     allRecords.sort((a, b) => parseInt(a.EngineeringId, 10) - parseInt(b.EngineeringId, 10));
-    const records = allRecords.slice(0, 200);
-    console.log(`Shipment items for work order ${workOrderId}: ${data?.totalCount ?? allRecords.length} total, returning ${records.length}`);
-    const slim = records.map(r => ({
+    console.log(`Shipment items for work order ${workOrderId}: ${allRecords.length} total`);
+    const slim = allRecords.map(r => ({
       Name: r.Name || r.ItemName || r.name,
       Quantity: Math.round((r.Quantity ?? r.Qty ?? r.quantity ?? r.qty) * 1000) / 1000,
       Description: r.Description || r.description,
