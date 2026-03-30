@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LaborCalc — Login</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f4fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.12); width: 100%; max-width: 360px; }
+    h1 { color: #333; margin: 0 0 8px 0; font-size: 24px; }
+    .subtitle { color: #666; font-size: 14px; margin-bottom: 28px; }
+    label { display: block; font-weight: bold; color: #333; margin-bottom: 5px; font-size: 14px; }
+    input { width: 100%; padding: 9px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; box-sizing: border-box; margin-bottom: 16px; }
+    input:focus { outline: none; border-color: #4a90d9; box-shadow: 0 0 0 2px rgba(74,144,217,0.2); }
+    button { width: 100%; padding: 10px; background: #4a90d9; color: white; border: none; border-radius: 4px; font-size: 15px; cursor: pointer; }
+    button:hover { background: #357abd; }
+    .error { color: #c0392b; background: #fdf0ef; border: 1px solid #f5c6c2; border-radius: 4px; padding: 9px 12px; margin-bottom: 16px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>LaborCalc</h1>
+    <div class="subtitle">Sign in to continue</div>
+    <div id="error" class="error" style="display:none"></div>
+    <form id="login-form">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+      <button type="submit">Sign In</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const error = document.getElementById('error');
+      error.style.display = 'none';
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value
+        })
+      });
+      if (res.ok) {
+        window.location.href = '/';
+      } else {
+        const data = await res.json();
+        error.textContent = data.error || 'Invalid username or password.';
+        error.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

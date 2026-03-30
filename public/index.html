@@ -51,7 +51,12 @@
   </style>
 </head>
 <body>
-  <h1>LaborCalc — Innergy Projects</h1>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h1 style="margin:0">LaborCalc — Innergy Projects</h1>
+    <form method="POST" action="/auth/logout">
+      <button type="submit" style="padding:7px 16px; background:#888; color:white; border:none; border-radius:4px; cursor:pointer; font-size:14px;">Sign Out</button>
+    </form>
+  </div>
   <form class="filter-form" id="filter-form">
     <label for="name-filter">Name:</label>
     <input type="text" id="name-filter" placeholder="Project name…">

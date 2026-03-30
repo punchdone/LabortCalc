@@ -1,11 +1,61 @@
 require('dotenv').config();
 const express = require('express');
 const https = require('https');
+const session = require('express-session');
+const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static('public'));
+app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'change-me-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 } // 8 hours
+}));
+
+function loadUsers() {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(__dirname, 'users.json'), 'utf8'));
+  } catch { return []; }
+}
+
+function requireAuth(req, res, next) {
+  if (req.session.user) return next();
+  if (req.accepts('html')) return res.redirect('/login.html');
+  res.status(401).json({ error: 'Unauthorized' });
+}
+
+// Login route
+app.post('/auth/login', (req, res) => {
+  const { username, password } = req.body;
+  const users = loadUsers();
+  const user = users.find(u => u.username === username);
+  if (!user || !bcrypt.compareSync(password, user.password)) {
+    return res.status(401).json({ error: 'Invalid username or password.' });
+  }
+  req.session.user = { username: user.username };
+  res.json({ ok: true });
+});
+
+// Logout route
+app.post('/auth/logout', (req, res) => {
+  req.session.destroy(() => res.redirect('/login.html'));
+});
+
+// Public files (login page, assets)
+app.use(express.static('public', { index: false }));
+
+// Protect the main page
+app.get('/', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Protect all API routes
+app.use('/api', requireAuth);
 
 function httpsGet(url, headers, timeoutMs = 15000) {
   return new Promise((resolve, reject) => {
