@@ -107,7 +107,7 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
   try {
     const allRecords = [];
     let skip = 0;
-    const take = 100;
+    const take = 500;
 
     while (true) {
       const url = `${base}?take=${take}&skip=${skip}`;
