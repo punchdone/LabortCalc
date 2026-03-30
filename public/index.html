@@ -98,7 +98,14 @@
     const siCache = {};
 
     function formatDate(val) {
-      return val ? new Date(val).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '—';
+      if (!val) return '—';
+      try {
+        // Normalise to ISO so Safari doesn't throw on non-standard formats
+        const iso = typeof val === 'string' ? val.replace(' ', 'T') : val;
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return '—';
+        return d.toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
+      } catch { return '—'; }
     }
 
     function projectId(p) {
