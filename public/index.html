@@ -212,8 +212,9 @@
 
       workorders.forEach(w => {
         const wid = workOrderId(w);
-        console.log('WorkOrderId:', wid, '| Work order object:', JSON.stringify(w));
-        console.log('WorkOrderId:', wid, '| ProjectId:', pid);
+        console.log('Rendering work order:', wid, JSON.stringify(w));
+        console.log('  CreatedOn raw:', w.CreatedOn || w.CreatedDate || w.createdOn || w.createdDate);
+        console.log('  formatDate result:', formatDate(w.CreatedOn || w.CreatedDate || w.createdOn || w.createdDate));
 
         const row = document.createElement('tr');
         row.className = 'wo-row';
@@ -261,10 +262,13 @@
       if (woCache[pid]) { renderWoContent(woCache[pid], woDiv, pid); return woCache[pid]; }
       woDiv.innerHTML = '<p class="wo-loading">Loading work orders…</p>';
       try {
+        console.log('Fetching work orders for pid:', pid);
         const records = await fetchWorkOrders(pid);
+        console.log('Work orders received:', records.length, records[0]);
         renderWoContent(records, woDiv, pid);
         return records;
       } catch (err) {
+        console.error('loadWorkOrders error:', err.message, err.stack);
         woDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
       }
     }
