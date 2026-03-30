@@ -134,6 +134,7 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
     const allRecords = Array.isArray(data) ? data
       : Array.isArray(data?.data) ? data.data
       : Array.isArray(data?.Items) ? data.Items : [];
+    allRecords.sort((a, b) => parseInt(a.EngineeringId, 10) - parseInt(b.EngineeringId, 10));
     const records = allRecords.slice(0, 200);
     console.log(`Shipment items for work order ${workOrderId}: ${data?.totalCount ?? allRecords.length} total, returning ${records.length}`);
     const slim = records.map(r => ({
