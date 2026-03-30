@@ -102,7 +102,7 @@ app.get('/api/workorders/:projectId', async (req, res) => {
 
 app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
   const { workOrderId } = req.params;
-  const url = `https://app.innergy.com/api/shipmentItems?workOrderId=${encodeURIComponent(workOrderId)}`;
+  const url = `https://app.innergy.com/api/v2-unstable/project-management/work-orders/${encodeURIComponent(workOrderId)}/shipment-items`;
   console.log('Fetching:', url);
 
   try {
