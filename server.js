@@ -106,11 +106,11 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
 
   try {
     const allRecords = [];
-    let page = 1;
-    const pageSize = 100;
+    let skip = 0;
+    const take = 100;
 
     while (true) {
-      const url = `${base}?page=${page}&pageSize=${pageSize}`;
+      const url = `${base}?take=${take}&skip=${skip}`;
       console.log('Fetching:', url);
 
       const response = await httpsGet(url, {
@@ -139,10 +139,10 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
       allRecords.push(...pageRecords);
 
       const totalCount = data?.totalCount ?? pageRecords.length;
-      console.log(`Shipment items page ${page}: got ${pageRecords.length}, total ${totalCount}`);
+      console.log(`Shipment items skip=${skip}: got ${pageRecords.length}, total ${totalCount}`);
 
       if (allRecords.length >= totalCount || pageRecords.length === 0) break;
-      page++;
+      skip += take;
     }
 
     allRecords.sort((a, b) => parseInt(a.EngineeringId, 10) - parseInt(b.EngineeringId, 10));
