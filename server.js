@@ -10,6 +10,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- MongoDB ---
+if (!process.env.MONGODB_URI) {
+  console.error('ERROR: MONGODB_URI is not set. Check your .env file.');
+  process.exit(1);
+}
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err.message));
