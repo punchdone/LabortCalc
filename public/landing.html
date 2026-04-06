@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rainier Woodworking — Tools</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      min-height: 100vh;
+      background-color: #1a3a1a;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 500' preserveAspectRatio='xMidYMax slice'%3E%3Crect width='800' height='500' fill='%23162b2b'/%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23001a33'/%3E%3Cstop offset='100%25' stop-color='%23163a2a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='500' fill='url(%23sky)'/%3E%3Ccircle cx='100' cy='40' r='1' fill='white' opacity='0.8'/%3E%3Ccircle cx='200' cy='20' r='1.2' fill='white' opacity='0.7'/%3E%3Ccircle cx='350' cy='55' r='1' fill='white' opacity='0.6'/%3E%3Ccircle cx='500' cy='30' r='1.5' fill='white' opacity='0.8'/%3E%3Ccircle cx='650' cy='15' r='1' fill='white' opacity='0.7'/%3E%3Ccircle cx='720' cy='60' r='1.2' fill='white' opacity='0.6'/%3E%3Ccircle cx='60' cy='80' r='1' fill='white' opacity='0.5'/%3E%3Ccircle cx='430' cy='10' r='1' fill='white' opacity='0.9'/%3E%3Cpolygon points='60,320 80,240 100,320' fill='%231a3d1a'/%3E%3Cpolygon points='75,320 95,200 115,320' fill='%23173517'/%3E%3Cpolygon points='130,320 155,220 180,320' fill='%231a3d1a'/%3E%3Cpolygon points='160,320 180,180 200,320' fill='%23163016'/%3E%3Cpolygon points='220,320 245,210 270,320' fill='%231a3d1a'/%3E%3Cpolygon points='280,320 300,190 320,320' fill='%231e421e'/%3E%3Cpolygon points='340,320 365,215 390,320' fill='%231a3d1a'/%3E%3Cpolygon points='400,320 420,195 440,320' fill='%23163016'/%3E%3Cpolygon points='460,320 485,205 510,320' fill='%231a3d1a'/%3E%3Cpolygon points='520,320 545,185 570,320' fill='%231e421e'/%3E%3Cpolygon points='580,320 605,200 630,320' fill='%231a3d1a'/%3E%3Cpolygon points='640,320 665,220 690,320' fill='%23163016'/%3E%3Cpolygon points='700,320 720,195 740,320' fill='%231a3d1a'/%3E%3Cpolygon points='740,320 760,210 780,320' fill='%231e421e'/%3E%3Cpolygon points='0,400 30,290 60,400' fill='%23204d20'/%3E%3Cpolygon points='20,400 55,260 90,400' fill='%231e471e'/%3E%3Cpolygon points='70,400 110,250 150,400' fill='%23245224'/%3E%3Cpolygon points='120,400 155,270 190,400' fill='%231e471e'/%3E%3Cpolygon points='175,400 215,245 255,400' fill='%23204d20'/%3E%3Cpolygon points='240,400 275,255 310,400' fill='%23245224'/%3E%3Cpolygon points='300,400 340,240 380,400' fill='%231e471e'/%3E%3Cpolygon points='365,400 400,258 435,400' fill='%23204d20'/%3E%3Cpolygon points='425,400 465,248 505,400' fill='%23245224'/%3E%3Cpolygon points='490,400 525,252 560,400' fill='%231e471e'/%3E%3Cpolygon points='550,400 590,242 630,400' fill='%23204d20'/%3E%3Cpolygon points='615,400 650,260 685,400' fill='%23245224'/%3E%3Cpolygon points='670,400 710,245 750,400' fill='%231e471e'/%3E%3Cpolygon points='735,400 770,255 805,400' fill='%23204d20'/%3E%3Cpolygon points='-20,500 30,350 80,500' fill='%2328612a'/%3E%3Cpolygon points='40,500 100,310 160,500' fill='%23245924'/%3E%3Cpolygon points='130,500 195,320 260,500' fill='%232a662a'/%3E%3Cpolygon points='230,500 290,300 350,500' fill='%23245924'/%3E%3Cpolygon points='325,500 385,315 445,500' fill='%2328612a'/%3E%3Cpolygon points='420,500 480,305 540,500' fill='%232a662a'/%3E%3Cpolygon points='515,500 575,318 635,500' fill='%23245924'/%3E%3Cpolygon points='610,500 670,308 730,500' fill='%2328612a'/%3E%3Cpolygon points='700,500 760,312 820,500' fill='%232a662a'/%3E%3Crect x='0' y='470' width='800' height='30' fill='%231a3d1a'/%3E%3C/svg%3E");
+      background-size: cover;
+      background-position: center bottom;
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Nav ribbon */
+    nav {
+      background: rgba(30, 66, 30, 0.92);
+      backdrop-filter: blur(4px);
+      border-bottom: 2px solid #3a7d44;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      height: 52px;
+      gap: 8px;
+    }
+    .nav-brand {
+      color: #c8e6c9;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 0.03em;
+      margin-right: auto;
+    }
+    .nav-link {
+      color: #c8e6c9;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 14px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .nav-link:hover {
+      background: rgba(58, 125, 68, 0.6);
+      color: #fff;
+    }
+    .nav-link.active {
+      background: #3a7d44;
+      color: #fff;
+    }
+    .nav-sep {
+      width: 1px;
+      height: 24px;
+      background: rgba(200, 230, 201, 0.2);
+    }
+    .nav-signout {
+      color: #a5c8a7;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+    }
+    .nav-signout:hover {
+      background: rgba(200, 80, 80, 0.25);
+      color: #fff;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+    }
+    .card-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+      max-width: 900px;
+      width: 100%;
+    }
+    .tool-card {
+      background: rgba(255, 255, 255, 0.93);
+      border-radius: 10px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+      padding: 32px 36px;
+      width: 260px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .tool-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+    }
+    .tool-card-icon {
+      font-size: 32px;
+      margin-bottom: 14px;
+    }
+    .tool-card-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #3a7d44;
+      margin-bottom: 8px;
+    }
+    .tool-card-desc {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    /* Branding footer */
+    footer {
+      text-align: center;
+      padding: 16px;
+      color: rgba(200, 230, 201, 0.55);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="nav-brand">Rainier Woodworking</span>
+    <a href="/laborcalc" class="nav-link">LaborCalc</a>
+    <div class="nav-sep"></div>
+    <form action="/auth/logout" method="POST" style="margin:0">
+      <button type="submit" class="nav-signout">Sign Out</button>
+    </form>
+  </nav>
+
+  <main>
+    <div class="card-grid">
+      <a href="/laborcalc" class="tool-card">
+        <div class="tool-card-icon">🪵</div>
+        <div class="tool-card-title">LaborCalc</div>
+        <div class="tool-card-desc">Browse Innergy projects, work orders, and shipment items. Track quantities and completion status.</div>
+      </a>
+    </div>
+  </main>
+
+  <footer>Rainier Woodworking &mdash; Internal Tools</footer>
+</body>
+</html>

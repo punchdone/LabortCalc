@@ -49,8 +49,13 @@ app.post('/auth/logout', (req, res) => {
 // Public files (login page, assets)
 app.use(express.static('public', { index: false }));
 
-// Protect the main page
+// Landing page
 app.get('/', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+});
+
+// LaborCalc app
+app.get('/laborcalc', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
