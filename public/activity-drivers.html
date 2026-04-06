@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activity Drivers — Rainier Woodworking</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f7f4; }
+    .page-content { max-width: 900px; margin: 32px auto; padding: 0 20px; }
+
+    /* Nav ribbon */
+    nav { background: #1e421e; border-bottom: 2px solid #3a7d44; display: flex; align-items: center; padding: 0 28px; height: 52px; gap: 8px; }
+    .nav-brand { color: #c8e6c9; font-size: 15px; font-weight: bold; letter-spacing: 0.03em; margin-right: auto; text-decoration: none; }
+    .nav-brand:hover { color: #fff; }
+    .nav-link { color: #c8e6c9; text-decoration: none; font-size: 14px; padding: 6px 14px; border-radius: 4px; transition: background 0.15s; }
+    .nav-link:hover { background: rgba(58,125,68,0.6); color: #fff; }
+    .nav-link.active { background: #3a7d44; color: #fff; }
+    .nav-sep { width: 1px; height: 24px; background: rgba(200,230,201,0.2); }
+    .nav-signout { color: #a5c8a7; font-size: 13px; padding: 6px 12px; border-radius: 4px; cursor: pointer; background: none; border: none; font-family: inherit; }
+    .nav-signout:hover { background: rgba(200,80,80,0.25); color: #fff; }
+
+    h1 { color: #2a5c2a; margin: 0 0 24px 0; font-size: 22px; }
+
+    /* Form card */
+    .form-card {
+      background: #fff;
+      border: 1px solid #cde0cd;
+      border-radius: 8px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .form-card h2 { margin: 0 0 18px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
+    .form-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+    .form-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+    .form-field label { font-size: 13px; font-weight: bold; color: #444; }
+    .form-field input { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; }
+    .form-field input:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
+    .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .btn-submit:hover { background: #2e6336; }
+    .form-msg { margin-top: 12px; font-size: 13px; min-height: 18px; }
+    .form-msg.success { color: #2a7d3a; }
+    .form-msg.error { color: #c0392b; }
+
+    /* Table */
+    .table-card {
+      background: #fff;
+      border: 1px solid #cde0cd;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 0 16px; }
+    .section-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: #3a7d44; display: inline-block; padding: 3px 10px; border-radius: 4px 4px 0 0; margin-bottom: 0; }
+    #record-count { font-size: 12px; color: #888; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #3a7d44; color: #fff; text-align: left; padding: 10px 12px; font-size: 13px; }
+    td { padding: 9px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f2f7f2; }
+    td.qty { text-align: right; }
+    th.qty { text-align: right; }
+    .btn-delete { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 3px; line-height: 1; }
+    .btn-delete:hover { color: #c0392b; background: #fdecea; }
+    #table-status { padding: 16px 12px; color: #888; font-style: italic; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="nav-brand">Rainier Woodworking</a>
+    <a href="/" class="nav-link">Home</a>
+    <a href="/laborcalc" class="nav-link">LaborCalc</a>
+    <a href="/activity-drivers" class="nav-link active">Activity Drivers</a>
+    <div class="nav-sep"></div>
+    <form method="POST" action="/auth/logout" style="margin:0">
+      <button type="submit" class="nav-signout">Sign Out</button>
+    </form>
+  </nav>
+
+  <div class="page-content">
+    <h1>Activity Drivers</h1>
+
+    <div class="form-card">
+      <h2>Add Entry</h2>
+      <form id="add-form">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="workCenter">Work Center</label>
+            <input type="text" id="workCenter" placeholder="e.g. Assembly" required>
+          </div>
+          <div class="form-field">
+            <label for="activityDriver">Activity Driver</label>
+            <input type="text" id="activityDriver" placeholder="e.g. Machine Hours" required>
+          </div>
+          <div class="form-field" style="max-width:140px">
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" placeholder="0" step="any" required>
+          </div>
+          <button type="submit" class="btn-submit">Add</button>
+        </div>
+        <div class="form-msg" id="form-msg"></div>
+      </form>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <span class="section-title">Entries</span>
+        <span id="record-count"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Work Center</th>
+            <th>Activity Driver</th>
+            <th class="qty">Quantity</th>
+            <th style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="records-body">
+          <tr><td colspan="4" id="table-status">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const tbody = document.getElementById('records-body');
+    const countEl = document.getElementById('record-count');
+    const msgEl = document.getElementById('form-msg');
+
+    async function loadRecords() {
+      tbody.innerHTML = '<tr><td colspan="4" id="table-status">Loading...</td></tr>';
+      try {
+        const res = await fetch('/api/activity-drivers');
+        const records = await res.json();
+        renderTable(records);
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="4" style="color:red;padding:12px">Failed to load records.</td></tr>';
+      }
+    }
+
+    function renderTable(records) {
+      countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
+      if (!records.length) {
+        tbody.innerHTML = '<tr><td colspan="4" id="table-status">No entries yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = records.map(r => `
+        <tr>
+          <td>${esc(r.workCenter)}</td>
+          <td>${esc(r.activityDriver)}</td>
+          <td class="qty">${r.quantity}</td>
+          <td><button class="btn-delete" title="Delete" data-id="${r._id}">&#x2715;</button></td>
+        </tr>
+      `).join('');
+
+      tbody.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', () => deleteRecord(btn.dataset.id));
+      });
+    }
+
+    async function deleteRecord(id) {
+      if (!confirm('Delete this entry?')) return;
+      try {
+        await fetch(`/api/activity-drivers/${id}`, { method: 'DELETE' });
+        loadRecords();
+      } catch {
+        alert('Failed to delete entry.');
+      }
+    }
+
+    document.getElementById('add-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const workCenter    = document.getElementById('workCenter').value.trim();
+      const activityDriver = document.getElementById('activityDriver').value.trim();
+      const quantity      = document.getElementById('quantity').value;
+
+      msgEl.className = 'form-msg';
+      msgEl.textContent = '';
+
+      try {
+        const res = await fetch('/api/activity-drivers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ workCenter, activityDriver, quantity })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          msgEl.className = 'form-msg error';
+          msgEl.textContent = data.error || 'Failed to save.';
+          return;
+        }
+        msgEl.className = 'form-msg success';
+        msgEl.textContent = 'Entry added.';
+        this.reset();
+        loadRecords();
+        setTimeout(() => msgEl.textContent = '', 3000);
+      } catch {
+        msgEl.className = 'form-msg error';
+        msgEl.textContent = 'Network error — could not save.';
+      }
+    });
+
+    function esc(str) {
+      return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    loadRecords();
+  </script>
+</body>
+</html>

@@ -20,6 +20,13 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
+const activityDriverSchema = new mongoose.Schema({
+  workCenter:     { type: String, required: true, trim: true },
+  activityDriver: { type: String, required: true, trim: true },
+  quantity:       { type: Number, required: true }
+}, { timestamps: true });
+const ActivityDriver = mongoose.model('ActivityDriver', activityDriverSchema);
+
 // --- Middleware ---
 app.use(express.json());
 app.use(session({
@@ -67,6 +74,43 @@ app.get('/', requireAuth, (req, res) => {
 // LaborCalc app
 app.get('/laborcalc', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Activity Drivers page
+app.get('/activity-drivers', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'activity-drivers.html'));
+});
+
+// Activity Drivers API
+app.get('/api/activity-drivers', async (req, res) => {
+  try {
+    const records = await ActivityDriver.find().sort({ workCenter: 1, activityDriver: 1 });
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/activity-drivers', async (req, res) => {
+  const { workCenter, activityDriver, quantity } = req.body;
+  if (!workCenter || !activityDriver || quantity === undefined) {
+    return res.status(400).json({ error: 'workCenter, activityDriver, and quantity are required.' });
+  }
+  try {
+    const record = await ActivityDriver.create({ workCenter, activityDriver, quantity: Number(quantity) });
+    res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/activity-drivers/:id', async (req, res) => {
+  try {
+    await ActivityDriver.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Protect all API routes
