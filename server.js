@@ -31,6 +31,7 @@ const User = mongoose.model('User', userSchema);
 const activityDriverSchema = new mongoose.Schema({
   workCenter:     { type: String, required: true, trim: true },
   activityDriver: { type: String, required: true, trim: true },
+  qualifier:      { type: String, trim: true },
   quantity:       { type: Number, required: true }
 }, { timestamps: true });
 const ActivityDriver = mongoose.model('ActivityDriver', activityDriverSchema);
@@ -254,12 +255,12 @@ app.get('/api/activity-drivers', async (req, res) => {
 });
 
 app.post('/api/activity-drivers', async (req, res) => {
-  const { workCenter, activityDriver, quantity } = req.body;
+  const { workCenter, activityDriver, qualifier, quantity } = req.body;
   if (!workCenter || !activityDriver || quantity === undefined) {
     return res.status(400).json({ error: 'workCenter, activityDriver, and quantity are required.' });
   }
   try {
-    const record = await ActivityDriver.create({ workCenter, activityDriver, quantity: Number(quantity) });
+    const record = await ActivityDriver.create({ workCenter, activityDriver, qualifier, quantity: Number(quantity) });
     res.status(201).json(record);
   } catch (err) {
     res.status(500).json({ error: err.message });
