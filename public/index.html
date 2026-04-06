@@ -5,7 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LaborCalc</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    .page-content { max-width: 1200px; margin: 28px auto; padding: 0 20px; }
+
+    /* Nav ribbon */
+    nav { background: #1e421e; border-bottom: 2px solid #3a7d44; display: flex; align-items: center; padding: 0 28px; height: 52px; gap: 8px; }
+    .nav-brand { color: #c8e6c9; font-size: 15px; font-weight: bold; letter-spacing: 0.03em; margin-right: auto; text-decoration: none; }
+    .nav-brand:hover { color: #fff; }
+    .nav-link { color: #c8e6c9; text-decoration: none; font-size: 14px; padding: 6px 14px; border-radius: 4px; transition: background 0.15s; }
+    .nav-link:hover { background: rgba(58,125,68,0.6); color: #fff; }
+    .nav-link.active { background: #3a7d44; color: #fff; }
+    .nav-sep { width: 1px; height: 24px; background: rgba(200,230,201,0.2); }
+    .nav-signout { color: #a5c8a7; font-size: 13px; padding: 6px 12px; border-radius: 4px; cursor: pointer; background: none; border: none; font-family: inherit; }
+    .nav-signout:hover { background: rgba(200,80,80,0.25); color: #fff; }
     h1 { color: #333; }
     #status { color: #666; font-style: italic; }
 
@@ -58,12 +70,17 @@
   </style>
 </head>
 <body>
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <h1 style="margin:0">LaborCalc — Innergy Projects</h1>
-    <form method="POST" action="/auth/logout">
-      <button type="submit" style="padding:7px 16px; background:#888; color:white; border:none; border-radius:4px; cursor:pointer; font-size:14px;">Sign Out</button>
+  <nav>
+    <a href="/" class="nav-brand">Rainier Woodworking</a>
+    <a href="/" class="nav-link">Home</a>
+    <a href="/laborcalc" class="nav-link active">LaborCalc</a>
+    <div class="nav-sep"></div>
+    <form method="POST" action="/auth/logout" style="margin:0">
+      <button type="submit" class="nav-signout">Sign Out</button>
     </form>
-  </div>
+  </nav>
+  <div class="page-content">
+  <h1 style="margin:0 0 4px 0; color:#333;">LaborCalc — Innergy Projects</h1>
   <form class="filter-form" id="filter-form">
     <label for="name-filter">Name:</label>
     <input type="text" id="name-filter" placeholder="Project name…">
@@ -381,5 +398,6 @@
       renderProjects(allProjects);
     });
   </script>
+  </div><!-- /.page-content -->
 </body>
 </html>
