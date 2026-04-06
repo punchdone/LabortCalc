@@ -39,6 +39,11 @@ const ActivityDriver = mongoose.model('ActivityDriver', activityDriverSchema);
 const catalogueSchema = new mongoose.Schema({
   configuration: { type: String, required: true, trim: true },
   description:   { type: String, trim: true },
+  productLine:   { type: String, trim: true },
+  type:          { type: String, trim: true },
+  width:         { type: Number, default: null },
+  height:        { type: Number, default: null },
+  depth:         { type: Number, default: null },
   doorQty:       { type: Number, default: 0 },
   drawerQty:     { type: Number, default: 0 },
   finInt:        { type: Boolean, default: false }
@@ -217,7 +222,7 @@ app.get('/api/catalogue', async (req, res) => {
 });
 
 app.post('/api/catalogue', async (req, res) => {
-  const { configuration, description, doorQty, drawerQty, finInt } = req.body;
+  const { configuration, description, productLine, type, width, height, depth, doorQty, drawerQty, finInt } = req.body;
   if (!configuration) {
     return res.status(400).json({ error: 'configuration is required.' });
   }
@@ -225,6 +230,11 @@ app.post('/api/catalogue', async (req, res) => {
     const record = await Catalogue.create({
       configuration,
       description,
+      productLine,
+      type,
+      width:     width  !== '' && width  != null ? Number(width)  : null,
+      height:    height !== '' && height != null ? Number(height) : null,
+      depth:     depth  !== '' && depth  != null ? Number(depth)  : null,
       doorQty:   Number(doorQty   ?? 0),
       drawerQty: Number(drawerQty ?? 0),
       finInt:    Boolean(finInt)

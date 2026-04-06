@@ -7,7 +7,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f7f4; }
-    .page-content { max-width: 1000px; margin: 32px auto; padding: 0 20px; }
+    .page-content { max-width: 1300px; margin: 32px auto; padding: 0 20px; }
 
     /* Nav ribbon */
     nav { background: #1e421e; border-bottom: 2px solid #3a7d44; display: flex; align-items: center; padding: 0 28px; height: 52px; gap: 8px; }
@@ -101,10 +101,30 @@
           </div>
           <div class="form-field">
             <label for="description">Description</label>
-            <input type="text" id="description" placeholder="Optional description">
+            <input type="text" id="description" placeholder="Optional">
+          </div>
+          <div class="form-field">
+            <label for="productLine">Product Line</label>
+            <input type="text" id="productLine" placeholder="e.g. Shaker Series">
+          </div>
+          <div class="form-field">
+            <label for="type">Type</label>
+            <input type="text" id="type" placeholder="e.g. Base, Wall, Tall">
           </div>
         </div>
         <div class="form-row">
+          <div class="form-field narrow">
+            <label for="width">Width</label>
+            <input type="number" id="width" placeholder="—" step="any" min="0">
+          </div>
+          <div class="form-field narrow">
+            <label for="height">Height</label>
+            <input type="number" id="height" placeholder="—" step="any" min="0">
+          </div>
+          <div class="form-field narrow">
+            <label for="depth">Depth</label>
+            <input type="number" id="depth" placeholder="—" step="any" min="0">
+          </div>
           <div class="form-field narrow">
             <label for="doorQty">Door Qty</label>
             <input type="number" id="doorQty" value="0" min="0" step="1">
@@ -132,7 +152,12 @@
         <thead>
           <tr>
             <th>Configuration</th>
+            <th>Product Line</th>
+            <th>Type</th>
             <th>Description</th>
+            <th class="center">Width</th>
+            <th class="center">Height</th>
+            <th class="center">Depth</th>
             <th class="center">Door Qty</th>
             <th class="center">Drawer Qty</th>
             <th class="center">Fin. Interior</th>
@@ -140,7 +165,7 @@
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="6" id="table-status">Loading...</td></tr>
+          <tr><td colspan="10" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -152,26 +177,31 @@
     const msgEl = document.getElementById('form-msg');
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="6" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
         const records = await res.json();
         renderTable(records);
       } catch {
-        tbody.innerHTML = '<tr><td colspan="6" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="6" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
         <tr>
           <td>${esc(r.configuration)}</td>
+          <td>${esc(r.productLine)}</td>
+          <td>${esc(r.type)}</td>
           <td>${esc(r.description)}</td>
+          <td class="center">${r.width  ?? '—'}</td>
+          <td class="center">${r.height ?? '—'}</td>
+          <td class="center">${r.depth  ?? '—'}</td>
           <td class="center">${r.doorQty}</td>
           <td class="center">${r.drawerQty}</td>
           <td class="center">
@@ -200,6 +230,11 @@
       e.preventDefault();
       const configuration = document.getElementById('configuration').value.trim();
       const description   = document.getElementById('description').value.trim();
+      const productLine   = document.getElementById('productLine').value.trim();
+      const type          = document.getElementById('type').value.trim();
+      const width         = document.getElementById('width').value;
+      const height        = document.getElementById('height').value;
+      const depth         = document.getElementById('depth').value;
       const doorQty       = document.getElementById('doorQty').value;
       const drawerQty     = document.getElementById('drawerQty').value;
       const finInt        = document.getElementById('finInt').checked;
@@ -211,7 +246,7 @@
         const res = await fetch('/api/catalogue', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ configuration, description, doorQty, drawerQty, finInt })
+          body: JSON.stringify({ configuration, description, productLine, type, width, height, depth, doorQty, drawerQty, finInt })
         });
         const data = await res.json();
         if (!res.ok) {
@@ -224,6 +259,9 @@
         this.reset();
         document.getElementById('doorQty').value = '0';
         document.getElementById('drawerQty').value = '0';
+        document.getElementById('width').value = '';
+        document.getElementById('height').value = '';
+        document.getElementById('depth').value = '';
         loadRecords();
         setTimeout(() => msgEl.textContent = '', 3000);
       } catch {
