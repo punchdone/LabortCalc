@@ -22,8 +22,10 @@ if (process.env.MONGODB_URI) {
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true }
-});
+  password: { type: String, required: true },
+  role:     { type: String, enum: ['admin', 'user'], default: 'user' },
+  status:   { type: String, enum: ['pending', 'approved'], default: 'pending' }
+}, { timestamps: true });
 const User = mongoose.model('User', userSchema);
 
 const activityDriverSchema = new mongoose.Schema({
@@ -57,6 +59,29 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'Unauthorized' });
 }
 
+function requireAdmin(req, res, next) {
+  if (req.session.user?.role === 'admin') return next();
+  if (req.accepts('html')) return res.redirect('/');
+  res.status(403).json({ error: 'Admin access required.' });
+}
+
+// Public signup — creates a pending account
+app.post('/auth/signup', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' });
+  if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+  if (!mongoReady) return res.status(503).json({ error: 'Service unavailable. Try again later.' });
+  try {
+    const exists = await User.findOne({ username: username.toLowerCase().trim() });
+    if (exists) return res.status(409).json({ error: 'That username is already taken.' });
+    const hash = bcrypt.hashSync(password, 10);
+    await User.create({ username: username.toLowerCase().trim(), password: hash, role: 'user', status: 'pending' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
 // Login route — uses MongoDB when connected, falls back to users.json
 app.post('/auth/login', async (req, res) => {
   const { username, password } = req.body;
@@ -64,17 +89,24 @@ app.post('/auth/login', async (req, res) => {
     let user;
     if (mongoReady) {
       user = await User.findOne({ username: username.toLowerCase().trim() });
+      if (!user || !bcrypt.compareSync(password, user.password)) {
+        return res.status(401).json({ error: 'Invalid username or password.' });
+      }
+      if (user.status !== 'approved') {
+        return res.status(403).json({ error: 'Your account is pending admin approval.' });
+      }
+      req.session.user = { username: user.username, role: user.role };
     } else {
-      // Fallback to users.json
+      // Fallback to users.json — treat all as approved admins
       try {
         const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'users.json'), 'utf8'));
         user = users.find(u => u.username === username.toLowerCase().trim());
       } catch { user = null; }
+      if (!user || !bcrypt.compareSync(password, user.password)) {
+        return res.status(401).json({ error: 'Invalid username or password.' });
+      }
+      req.session.user = { username: user.username, role: 'admin' };
     }
-    if (!user || !bcrypt.compareSync(password, user.password)) {
-      return res.status(401).json({ error: 'Invalid username or password.' });
-    }
-    req.session.user = { username: user.username };
     res.json({ ok: true });
   } catch (err) {
     console.error('Login error:', err.message);
@@ -110,37 +142,61 @@ app.get('/catalogue', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'catalogue.html'));
 });
 
-// Register / user management page
-app.get('/register', requireAuth, (req, res) => {
+// Register / user management page (admin only)
+app.get('/register', requireAuth, requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
-// User management API
-app.get('/api/users', async (req, res) => {
+// User management API (admin only)
+app.get('/api/users', requireAdmin, async (req, res) => {
   try {
-    const users = await User.find({}, 'username _id').sort({ username: 1 });
+    const users = await User.find({}, 'username role status createdAt _id').sort({ status: 1, username: 1 });
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/users', async (req, res) => {
-  const { username, password } = req.body;
+app.post('/api/users', requireAdmin, async (req, res) => {
+  const { username, password, role } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' });
   if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters.' });
   try {
     const exists = await User.findOne({ username: username.toLowerCase().trim() });
     if (exists) return res.status(409).json({ error: `Username "${username}" is already taken.` });
     const hash = bcrypt.hashSync(password, 10);
-    const user = await User.create({ username: username.toLowerCase().trim(), password: hash });
-    res.status(201).json({ _id: user._id, username: user.username });
+    const user = await User.create({
+      username: username.toLowerCase().trim(),
+      password: hash,
+      role: role === 'admin' ? 'admin' : 'user',
+      status: 'approved'
+    });
+    res.status(201).json({ _id: user._id, username: user.username, role: user.role, status: user.status });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.delete('/api/users/:id', async (req, res) => {
+app.post('/api/users/:id/approve', requireAdmin, async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+    res.json({ ok: true, username: user.username });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/users/:id/reject', requireAdmin, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/users/:id', requireAdmin, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
     res.json({ ok: true });

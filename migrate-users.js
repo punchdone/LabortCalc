@@ -32,7 +32,7 @@ async function migrate() {
       console.log(`  Skipped (already exists): ${u.username}`);
       skipped++;
     } else {
-      await User.create({ username: u.username.toLowerCase(), password: u.password });
+      await User.create({ username: u.username.toLowerCase(), password: u.password, role: 'admin', status: 'approved' });
       console.log(`  Migrated: ${u.username}`);
       created++;
     }

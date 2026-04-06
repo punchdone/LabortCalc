@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register User — Rainier Woodworking</title>
+  <title>Users — Rainier Woodworking</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f7f4; }
-    .page-content { max-width: 560px; margin: 32px auto; padding: 0 20px; }
+    .page-content { max-width: 760px; margin: 32px auto; padding: 0 20px; }
 
     nav { background: #1e421e; border-bottom: 2px solid #3a7d44; display: flex; align-items: center; padding: 0 28px; height: 52px; gap: 8px; }
     .nav-brand { color: #c8e6c9; font-size: 15px; font-weight: bold; letter-spacing: 0.03em; margin-right: auto; text-decoration: none; }
@@ -21,42 +21,61 @@
 
     h1 { color: #2a5c2a; margin: 0 0 24px 0; font-size: 22px; }
 
+    /* Pending queue */
+    .pending-card {
+      background: #fffbea;
+      border: 1px solid #f0d060;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .pending-card .card-header { background: #f0a500; color: #fff; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+    .pending-card .card-header h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.07em; }
+    #pending-count { font-size: 12px; background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 10px; }
+    #pending-none { padding: 14px 16px; color: #888; font-style: italic; font-size: 13px; }
+
+    /* Forms & tables shared */
     .form-card {
       background: #fff;
       border: 1px solid #cde0cd;
       border-radius: 8px;
-      padding: 28px 32px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.07);
     }
-    .form-card h2 { margin: 0 0 20px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
-    .form-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-card h2 { margin: 0 0 16px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    .form-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
     .form-field label { font-size: 13px; font-weight: bold; color: #444; }
-    .form-field input { padding: 9px 12px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; }
-    .form-field input:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
-    .hint { font-size: 12px; color: #888; margin-top: 2px; }
-    .btn-submit { width: 100%; padding: 10px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 15px; cursor: pointer; font-family: inherit; margin-top: 4px; }
-    .btn-submit:hover { background: #2e6336; }
-    .form-msg { margin-top: 14px; padding: 10px 14px; border-radius: 4px; font-size: 13px; display: none; }
-    .form-msg.success { display: block; background: #d4edda; color: #1e7e34; border: 1px solid #c3e6cb; }
-    .form-msg.error   { display: block; background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
+    .form-field input, .form-field select { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; }
+    .form-field input:focus, .form-field select:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
+    .hint { font-size: 12px; color: #888; }
+    .btn { padding: 8px 18px; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .btn-green { background: #3a7d44; color: #fff; }
+    .btn-green:hover { background: #2e6336; }
+    .btn-approve { background: #2a7d3a; color: #fff; }
+    .btn-approve:hover { background: #1e6030; }
+    .btn-reject { background: none; border: 1px solid #c0392b; color: #c0392b; }
+    .btn-reject:hover { background: #fdecea; }
+    .btn-delete { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 3px; }
+    .btn-delete:hover { color: #c0392b; background: #fdecea; }
+    .form-msg { margin-top: 12px; font-size: 13px; min-height: 18px; }
+    .form-msg.success { color: #2a7d3a; }
+    .form-msg.error { color: #c0392b; }
 
-    .users-card {
-      margin-top: 28px;
-      background: #fff;
-      border: 1px solid #cde0cd;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
-    .users-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 0; }
+    .table-card { background: #fff; border: 1px solid #cde0cd; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 28px; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 0; }
     .section-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: #3a7d44; display: inline-block; padding: 3px 10px; border-radius: 4px 4px 0 0; }
     table { width: 100%; border-collapse: collapse; }
     th { background: #3a7d44; color: #fff; text-align: left; padding: 10px 12px; font-size: 13px; }
-    td { padding: 9px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; }
+    td { padding: 9px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #f2f7f2; }
-    .btn-delete { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 3px; }
-    .btn-delete:hover { color: #c0392b; background: #fdecea; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+    .badge-admin { background: #d4edda; color: #1e7e34; }
+    .badge-user  { background: #e9ecef; color: #555; }
+    .actions { display: flex; gap: 6px; align-items: center; }
   </style>
 </head>
 <body>
@@ -74,42 +93,70 @@
   </nav>
 
   <div class="page-content">
-    <h1>Register User</h1>
+    <h1>User Management</h1>
 
+    <!-- Pending approval queue -->
+    <div class="pending-card" id="pending-card">
+      <div class="card-header">
+        <h2>Pending Approval</h2>
+        <span id="pending-count"></span>
+      </div>
+      <div id="pending-none">No pending requests.</div>
+      <table id="pending-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Requested</th>
+            <th style="width:180px"></th>
+          </tr>
+        </thead>
+        <tbody id="pending-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Add user form -->
     <div class="form-card">
-      <h2>New Account</h2>
-      <form id="reg-form">
-        <div class="form-field">
-          <label for="username">Username</label>
-          <input type="text" id="username" autocomplete="off" required>
+      <h2>Add User</h2>
+      <form id="add-form">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="username">Username</label>
+            <input type="text" id="username" autocomplete="off" required>
+          </div>
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input type="password" id="password" required>
+            <span class="hint">Min. 6 characters</span>
+          </div>
+          <div class="form-field" style="max-width:120px">
+            <label for="role">Role</label>
+            <select id="role">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-green">Add</button>
         </div>
-        <div class="form-field">
-          <label for="password">Password</label>
-          <input type="password" id="password" required>
-          <span class="hint">Minimum 6 characters</span>
-        </div>
-        <div class="form-field">
-          <label for="confirm">Confirm Password</label>
-          <input type="password" id="confirm" required>
-        </div>
-        <button type="submit" class="btn-submit">Create Account</button>
         <div class="form-msg" id="form-msg"></div>
       </form>
     </div>
 
-    <div class="users-card">
-      <div class="users-header">
-        <span class="section-title">Existing Users</span>
+    <!-- Active users table -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="section-title">Active Users</span>
+        <span id="user-count" style="font-size:12px;color:#888"></span>
       </div>
       <table>
         <thead>
           <tr>
             <th>Username</th>
+            <th>Role</th>
             <th style="width:40px"></th>
           </tr>
         </thead>
         <tbody id="users-body">
-          <tr><td colspan="2" style="color:#888;font-style:italic;padding:12px">Loading...</td></tr>
+          <tr><td colspan="3" style="color:#888;font-style:italic;padding:12px">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -121,78 +168,111 @@
     async function loadUsers() {
       try {
         const res = await fetch('/api/users');
-        const users = await res.json();
-        const tbody = document.getElementById('users-body');
-        if (!users.length) {
-          tbody.innerHTML = '<tr><td colspan="2" style="color:#888;font-style:italic;padding:12px">No users found.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = users.map(u => `
-          <tr>
-            <td>${esc(u.username)}</td>
-            <td><button class="btn-delete" data-id="${u._id}" title="Delete">&#x2715;</button></td>
-          </tr>
-        `).join('');
-        tbody.querySelectorAll('.btn-delete').forEach(btn => {
-          btn.addEventListener('click', () => deleteUser(btn.dataset.id, btn));
-        });
+        const all = await res.json();
+        renderPending(all.filter(u => u.status === 'pending'));
+        renderActive(all.filter(u => u.status === 'approved'));
       } catch {
         document.getElementById('users-body').innerHTML =
-          '<tr><td colspan="2" style="color:red;padding:12px">Failed to load users.</td></tr>';
+          '<tr><td colspan="3" style="color:red;padding:12px">Failed to load users.</td></tr>';
       }
     }
 
-    async function deleteUser(id, btn) {
-      const row = btn.closest('tr');
-      const name = row.querySelector('td').textContent;
-      if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+    function renderPending(users) {
+      const tbody = document.getElementById('pending-body');
+      const table = document.getElementById('pending-table');
+      const none  = document.getElementById('pending-none');
+      const count = document.getElementById('pending-count');
+
+      if (!users.length) {
+        count.textContent = '';
+        table.style.display = 'none';
+        none.style.display = 'block';
+        return;
+      }
+      count.textContent = users.length;
+      none.style.display = 'none';
+      table.style.display = 'table';
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td>${esc(u.username)}</td>
+          <td style="color:#888;font-size:12px">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—'}</td>
+          <td>
+            <div class="actions">
+              <button class="btn btn-approve" data-id="${u._id}" data-action="approve">Approve</button>
+              <button class="btn btn-reject"  data-id="${u._id}" data-action="reject">Reject</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      tbody.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => handlePending(btn.dataset.id, btn.dataset.action, btn.closest('tr').querySelector('td').textContent));
+      });
+    }
+
+    async function handlePending(id, action, username) {
+      const label = action === 'approve' ? 'Approve' : 'Reject';
+      if (!confirm(`${label} account "${username}"?`)) return;
+      try {
+        await fetch(`/api/users/${id}/${action}`, { method: 'POST' });
+        loadUsers();
+      } catch {
+        alert(`Failed to ${action} user.`);
+      }
+    }
+
+    function renderActive(users) {
+      const tbody = document.getElementById('users-body');
+      const count = document.getElementById('user-count');
+      count.textContent = users.length ? `${users.length} user${users.length !== 1 ? 's' : ''}` : '';
+      if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="3" style="color:#888;font-style:italic;padding:12px">No active users.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td>${esc(u.username)}</td>
+          <td><span class="badge badge-${u.role}">${u.role}</span></td>
+          <td><button class="btn-delete" data-id="${u._id}" title="Delete">&#x2715;</button></td>
+        </tr>
+      `).join('');
+      tbody.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', () => deleteUser(btn.dataset.id, btn.closest('tr').querySelector('td').textContent));
+      });
+    }
+
+    async function deleteUser(id, username) {
+      if (!confirm(`Delete user "${username}"? This cannot be undone.`)) return;
       try {
         await fetch(`/api/users/${id}`, { method: 'DELETE' });
         loadUsers();
-      } catch {
-        alert('Failed to delete user.');
-      }
+      } catch { alert('Failed to delete user.'); }
     }
 
-    document.getElementById('reg-form').addEventListener('submit', async function(e) {
+    document.getElementById('add-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
-      const confirm  = document.getElementById('confirm').value;
-
+      const role     = document.getElementById('role').value;
       msgEl.className = 'form-msg';
-
       if (password.length < 6) {
         msgEl.className = 'form-msg error';
         msgEl.textContent = 'Password must be at least 6 characters.';
         return;
       }
-      if (password !== confirm) {
-        msgEl.className = 'form-msg error';
-        msgEl.textContent = 'Passwords do not match.';
-        return;
-      }
-
       try {
         const res = await fetch('/api/users', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+          body: JSON.stringify({ username, password, role })
         });
         const data = await res.json();
-        if (!res.ok) {
-          msgEl.className = 'form-msg error';
-          msgEl.textContent = data.error || 'Failed to create account.';
-          return;
-        }
+        if (!res.ok) { msgEl.className = 'form-msg error'; msgEl.textContent = data.error || 'Failed.'; return; }
         msgEl.className = 'form-msg success';
-        msgEl.textContent = `Account "${username}" created successfully.`;
+        msgEl.textContent = `User "${username}" created.`;
         this.reset();
         loadUsers();
-      } catch {
-        msgEl.className = 'form-msg error';
-        msgEl.textContent = 'Network error — could not create account.';
-      }
+        setTimeout(() => msgEl.textContent = '', 3000);
+      } catch { msgEl.className = 'form-msg error'; msgEl.textContent = 'Network error.'; }
     });
 
     function esc(str) {

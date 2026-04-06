@@ -23,7 +23,7 @@ async function run() {
     process.exit(1);
   }
   const hash = bcrypt.hashSync(password, 10);
-  await User.create({ username: username.toLowerCase(), password: hash });
+  await User.create({ username: username.toLowerCase(), password: hash, role: 'admin', status: 'approved' });
   console.log(`User "${username}" added.`);
   await mongoose.disconnect();
 }
