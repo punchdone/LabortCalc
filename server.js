@@ -4,19 +4,21 @@ const https = require('https');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const fs = require('fs');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- MongoDB ---
-if (!process.env.MONGODB_URI) {
-  console.error('ERROR: MONGODB_URI is not set. Check your .env file.');
-  process.exit(1);
+// --- MongoDB (optional — falls back to users.json if unavailable) ---
+let mongoReady = false;
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
+    .then(() => { mongoReady = true; console.log('MongoDB connected'); })
+    .catch(err => console.error('MongoDB connection error (falling back to users.json):', err.message));
+} else {
+  console.warn('MONGODB_URI not set — using users.json for auth');
 }
-mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err.message));
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -46,14 +48,20 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'Unauthorized' });
 }
 
-// Login route
+// Login route — uses MongoDB when connected, falls back to users.json
 app.post('/auth/login', async (req, res) => {
   const { username, password } = req.body;
   try {
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ error: 'Database unavailable. Check server logs.' });
+    let user;
+    if (mongoReady) {
+      user = await User.findOne({ username: username.toLowerCase().trim() });
+    } else {
+      // Fallback to users.json
+      try {
+        const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'users.json'), 'utf8'));
+        user = users.find(u => u.username === username.toLowerCase().trim());
+      } catch { user = null; }
     }
-    const user = await User.findOne({ username: username.toLowerCase().trim() });
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ error: 'Invalid username or password.' });
     }
