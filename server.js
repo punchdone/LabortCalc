@@ -3,12 +3,24 @@ const express = require('express');
 const https = require('https');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const fs = require('fs');
+const mongoose = require('mongoose');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// --- MongoDB ---
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err.message));
+
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password: { type: String, required: true }
+});
+const User = mongoose.model('User', userSchema);
+
+// --- Middleware ---
 app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET || 'change-me-in-production',
@@ -17,12 +29,6 @@ app.use(session({
   cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 } // 8 hours
 }));
 
-function loadUsers() {
-  try {
-    return JSON.parse(fs.readFileSync(path.join(__dirname, 'users.json'), 'utf8'));
-  } catch { return []; }
-}
-
 function requireAuth(req, res, next) {
   if (req.session.user) return next();
   if (req.accepts('html')) return res.redirect('/login.html');
@@ -30,18 +36,22 @@ function requireAuth(req, res, next) {
 }
 
 // Login route
-app.post('/auth/login', (req, res) => {
+app.post('/auth/login', async (req, res) => {
   const { username, password } = req.body;
-  const users = loadUsers();
-  const user = users.find(u => u.username === username);
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(401).json({ error: 'Invalid username or password.' });
+  try {
+    const user = await User.findOne({ username: username.toLowerCase().trim() });
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      return res.status(401).json({ error: 'Invalid username or password.' });
+    }
+    req.session.user = { username: user.username };
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Login error:', err.message);
+    res.status(500).json({ error: 'Server error during login.' });
   }
-  req.session.user = { username: user.username };
-  res.json({ ok: true });
 });
 
-// Logout route
+// Logout
 app.post('/auth/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/login.html'));
 });
