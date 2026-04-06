@@ -14,7 +14,7 @@ if (!process.env.MONGODB_URI) {
   console.error('ERROR: MONGODB_URI is not set. Check your .env file.');
   process.exit(1);
 }
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err.message));
 
@@ -50,6 +50,9 @@ function requireAuth(req, res, next) {
 app.post('/auth/login', async (req, res) => {
   const { username, password } = req.body;
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: 'Database unavailable. Check server logs.' });
+    }
     const user = await User.findOne({ username: username.toLowerCase().trim() });
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ error: 'Invalid username or password.' });
