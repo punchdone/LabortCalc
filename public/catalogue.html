@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Activity Drivers — Rainier Woodworking</title>
+  <title>Catalogue — Rainier Woodworking</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f7f4; }
-    .page-content { max-width: 900px; margin: 32px auto; padding: 0 20px; }
+    .page-content { max-width: 1000px; margin: 32px auto; padding: 0 20px; }
 
     /* Nav ribbon */
     nav { background: #1e421e; border-bottom: 2px solid #3a7d44; display: flex; align-items: center; padding: 0 28px; height: 52px; gap: 8px; }
@@ -31,36 +31,45 @@
       margin-bottom: 32px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.07);
     }
-    .form-card h2 { margin: 0 0 18px 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
-    .form-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
-    .form-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+    .form-card h2 { margin: 0 0 18px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
+
+    .form-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 14px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+    .form-field.narrow { flex: 0 0 110px; min-width: unset; }
+    .form-field.full { flex: 0 0 100%; }
     .form-field label { font-size: 13px; font-weight: bold; color: #444; }
-    .form-field input { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; }
+    .form-field input[type="text"],
+    .form-field input[type="number"] {
+      padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit;
+    }
     .form-field input:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
-    .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+
+    /* Checkbox field */
+    .checkbox-field { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding-bottom: 2px; }
+    .checkbox-field input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3a7d44; cursor: pointer; }
+    .checkbox-field label { font-size: 13px; font-weight: bold; color: #444; cursor: pointer; white-space: nowrap; }
+
+    .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; align-self: flex-end; }
     .btn-submit:hover { background: #2e6336; }
     .form-msg { margin-top: 12px; font-size: 13px; min-height: 18px; }
     .form-msg.success { color: #2a7d3a; }
     .form-msg.error { color: #c0392b; }
 
     /* Table */
-    .table-card {
-      background: #fff;
-      border: 1px solid #cde0cd;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
+    .table-card { background: #fff; border: 1px solid #cde0cd; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
     .table-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 0 16px; }
-    .section-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: #3a7d44; display: inline-block; padding: 3px 10px; border-radius: 4px 4px 0 0; margin-bottom: 0; }
+    .section-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: #3a7d44; display: inline-block; padding: 3px 10px; border-radius: 4px 4px 0 0; }
     #record-count { font-size: 12px; color: #888; }
     table { width: 100%; border-collapse: collapse; }
     th { background: #3a7d44; color: #fff; text-align: left; padding: 10px 12px; font-size: 13px; }
-    td { padding: 9px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; }
+    td { padding: 9px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #f2f7f2; }
-    td.qty { text-align: right; }
-    th.qty { text-align: right; }
+    th.center, td.center { text-align: center; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+    .badge.yes { background: #d4edda; color: #1e7e34; }
+    .badge.no  { background: #f0f0f0; color: #888; }
     .btn-delete { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 3px; line-height: 1; }
     .btn-delete:hover { color: #c0392b; background: #fdecea; }
     #table-status { padding: 16px 12px; color: #888; font-style: italic; font-size: 13px; }
@@ -71,9 +80,8 @@
     <a href="/" class="nav-brand">Rainier Woodworking</a>
     <a href="/" class="nav-link">Home</a>
     <a href="/laborcalc" class="nav-link">LaborCalc</a>
-    <a href="/activity-drivers" class="nav-link active">Activity Drivers</a>
-    <a href="/catalogue" class="nav-link">Catalogue</a>
-    <a href="/register" class="nav-link">Users</a>
+    <a href="/activity-drivers" class="nav-link">Activity Drivers</a>
+    <a href="/catalogue" class="nav-link active">Catalogue</a>
     <div class="nav-sep"></div>
     <form method="POST" action="/auth/logout" style="margin:0">
       <button type="submit" class="nav-signout">Sign Out</button>
@@ -81,23 +89,33 @@
   </nav>
 
   <div class="page-content">
-    <h1>Activity Drivers</h1>
+    <h1>Catalogue</h1>
 
     <div class="form-card">
       <h2>Add Entry</h2>
       <form id="add-form">
         <div class="form-row">
           <div class="form-field">
-            <label for="workCenter">Work Center</label>
-            <input type="text" id="workCenter" placeholder="e.g. Assembly" required>
+            <label for="configuration">Configuration</label>
+            <input type="text" id="configuration" placeholder="e.g. Base Cabinet 24W" required>
           </div>
           <div class="form-field">
-            <label for="activityDriver">Activity Driver</label>
-            <input type="text" id="activityDriver" placeholder="e.g. Machine Hours" required>
+            <label for="description">Description</label>
+            <input type="text" id="description" placeholder="Optional description">
           </div>
-          <div class="form-field" style="max-width:140px">
-            <label for="quantity">Quantity</label>
-            <input type="number" id="quantity" placeholder="0" step="any" required>
+        </div>
+        <div class="form-row">
+          <div class="form-field narrow">
+            <label for="doorQty">Door Qty</label>
+            <input type="number" id="doorQty" value="0" min="0" step="1">
+          </div>
+          <div class="form-field narrow">
+            <label for="drawerQty">Drawer Qty</label>
+            <input type="number" id="drawerQty" value="0" min="0" step="1">
+          </div>
+          <div class="checkbox-field" style="padding-bottom:8px">
+            <input type="checkbox" id="finInt">
+            <label for="finInt">Finished Interior</label>
           </div>
           <button type="submit" class="btn-submit">Add</button>
         </div>
@@ -113,14 +131,16 @@
       <table>
         <thead>
           <tr>
-            <th>Work Center</th>
-            <th>Activity Driver</th>
-            <th class="qty">Quantity</th>
+            <th>Configuration</th>
+            <th>Description</th>
+            <th class="center">Door Qty</th>
+            <th class="center">Drawer Qty</th>
+            <th class="center">Fin. Interior</th>
             <th style="width:40px"></th>
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="4" id="table-status">Loading...</td></tr>
+          <tr><td colspan="6" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -132,27 +152,31 @@
     const msgEl = document.getElementById('form-msg');
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="4" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" id="table-status">Loading...</td></tr>';
       try {
-        const res = await fetch('/api/activity-drivers');
+        const res = await fetch('/api/catalogue');
         const records = await res.json();
         renderTable(records);
       } catch {
-        tbody.innerHTML = '<tr><td colspan="4" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="4" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
         <tr>
-          <td>${esc(r.workCenter)}</td>
-          <td>${esc(r.activityDriver)}</td>
-          <td class="qty">${r.quantity}</td>
+          <td>${esc(r.configuration)}</td>
+          <td>${esc(r.description)}</td>
+          <td class="center">${r.doorQty}</td>
+          <td class="center">${r.drawerQty}</td>
+          <td class="center">
+            <span class="badge ${r.finInt ? 'yes' : 'no'}">${r.finInt ? 'Yes' : 'No'}</span>
+          </td>
           <td><button class="btn-delete" title="Delete" data-id="${r._id}">&#x2715;</button></td>
         </tr>
       `).join('');
@@ -165,7 +189,7 @@
     async function deleteRecord(id) {
       if (!confirm('Delete this entry?')) return;
       try {
-        await fetch(`/api/activity-drivers/${id}`, { method: 'DELETE' });
+        await fetch(`/api/catalogue/${id}`, { method: 'DELETE' });
         loadRecords();
       } catch {
         alert('Failed to delete entry.');
@@ -174,18 +198,20 @@
 
     document.getElementById('add-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const workCenter    = document.getElementById('workCenter').value.trim();
-      const activityDriver = document.getElementById('activityDriver').value.trim();
-      const quantity      = document.getElementById('quantity').value;
+      const configuration = document.getElementById('configuration').value.trim();
+      const description   = document.getElementById('description').value.trim();
+      const doorQty       = document.getElementById('doorQty').value;
+      const drawerQty     = document.getElementById('drawerQty').value;
+      const finInt        = document.getElementById('finInt').checked;
 
       msgEl.className = 'form-msg';
       msgEl.textContent = '';
 
       try {
-        const res = await fetch('/api/activity-drivers', {
+        const res = await fetch('/api/catalogue', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ workCenter, activityDriver, quantity })
+          body: JSON.stringify({ configuration, description, doorQty, drawerQty, finInt })
         });
         const data = await res.json();
         if (!res.ok) {
@@ -196,6 +222,8 @@
         msgEl.className = 'form-msg success';
         msgEl.textContent = 'Entry added.';
         this.reset();
+        document.getElementById('doorQty').value = '0';
+        document.getElementById('drawerQty').value = '0';
         loadRecords();
         setTimeout(() => msgEl.textContent = '', 3000);
       } catch {

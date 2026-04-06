@@ -33,6 +33,15 @@ const activityDriverSchema = new mongoose.Schema({
 }, { timestamps: true });
 const ActivityDriver = mongoose.model('ActivityDriver', activityDriverSchema);
 
+const catalogueSchema = new mongoose.Schema({
+  configuration: { type: String, required: true, trim: true },
+  description:   { type: String, trim: true },
+  doorQty:       { type: Number, default: 0 },
+  drawerQty:     { type: Number, default: 0 },
+  finInt:        { type: Boolean, default: false }
+}, { timestamps: true });
+const Catalogue = mongoose.model('Catalogue', catalogueSchema);
+
 // --- Middleware ---
 app.use(express.json());
 app.use(session({
@@ -94,6 +103,88 @@ app.get('/laborcalc', requireAuth, (req, res) => {
 // Activity Drivers page
 app.get('/activity-drivers', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'activity-drivers.html'));
+});
+
+// Catalogue page
+app.get('/catalogue', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'catalogue.html'));
+});
+
+// Register / user management page
+app.get('/register', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
+
+// User management API
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find({}, 'username _id').sort({ username: 1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/users', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' });
+  if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+  try {
+    const exists = await User.findOne({ username: username.toLowerCase().trim() });
+    if (exists) return res.status(409).json({ error: `Username "${username}" is already taken.` });
+    const hash = bcrypt.hashSync(password, 10);
+    const user = await User.create({ username: username.toLowerCase().trim(), password: hash });
+    res.status(201).json({ _id: user._id, username: user.username });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Catalogue API
+app.get('/api/catalogue', async (req, res) => {
+  try {
+    const records = await Catalogue.find().sort({ configuration: 1 });
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/catalogue', async (req, res) => {
+  const { configuration, description, doorQty, drawerQty, finInt } = req.body;
+  if (!configuration) {
+    return res.status(400).json({ error: 'configuration is required.' });
+  }
+  try {
+    const record = await Catalogue.create({
+      configuration,
+      description,
+      doorQty:   Number(doorQty   ?? 0),
+      drawerQty: Number(drawerQty ?? 0),
+      finInt:    Boolean(finInt)
+    });
+    res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/catalogue/:id', async (req, res) => {
+  try {
+    await Catalogue.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Activity Drivers API
