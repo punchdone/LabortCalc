@@ -36,6 +36,12 @@ const activityDriverSchema = new mongoose.Schema({
 }, { timestamps: true });
 const ActivityDriver = mongoose.model('ActivityDriver', activityDriverSchema);
 
+const workCenterSchema = new mongoose.Schema({
+  code:  { type: String, required: true, unique: true, trim: true, match: /^\d{3}$/ },
+  title: { type: String, required: true, trim: true }
+}, { timestamps: true });
+const WorkCenter = mongoose.model('WorkCenter', workCenterSchema);
+
 const catalogueSchema = new mongoose.Schema({
   configuration: { type: String, required: true, trim: true },
   description:   { type: String, trim: true },
@@ -151,6 +157,44 @@ app.get('/catalogue', requireAuth, (req, res) => {
 // Settings page
 app.get('/settings', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'settings.html'));
+});
+
+// Work Centers page
+app.get('/work-centers', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'work-centers.html'));
+});
+
+// Work Centers API
+app.get('/api/work-centers', async (req, res) => {
+  try {
+    const records = await WorkCenter.find().sort({ code: 1 });
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/work-centers', async (req, res) => {
+  const { code, title } = req.body;
+  if (!code || !title) return res.status(400).json({ error: 'Code and title are required.' });
+  if (!/^\d{3}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 3 digits.' });
+  try {
+    const exists = await WorkCenter.findOne({ code });
+    if (exists) return res.status(409).json({ error: `Work center code "${code}" already exists.` });
+    const record = await WorkCenter.create({ code, title });
+    res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/work-centers/:id', async (req, res) => {
+  try {
+    await WorkCenter.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Register / user management page (admin only)
