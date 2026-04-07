@@ -150,6 +150,30 @@
           </div>
         </div>
 
+        <!-- Supplier Details (shown when Buy Out is checked) -->
+        <div id="supplier-row" class="form-row" style="display:none;">
+          <fieldset style="border:none;padding:0;margin:0;">
+            <div class="details-box">
+              <legend>Supplier Details</legend>
+              <div class="form-field">
+                <label for="supplierName">Supplier Name</label>
+                <input type="text" id="supplierName" placeholder="e.g. Acme Supply Co.">
+              </div>
+              <div class="form-field narrow">
+                <label for="supplierPartNo">Part Number</label>
+                <input type="text" id="supplierPartNo" placeholder="e.g. ABC-1234">
+              </div>
+              <div class="form-field narrow">
+                <label for="supplierPrice">Supplier Price</label>
+                <div style="display:flex; align-items:center; gap:4px;">
+                  <span style="font-size:14px; color:#444;">$</span>
+                  <input type="number" id="supplierPrice" placeholder="0.00" step="0.01" min="0" style="width:110px;">
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
         <!-- Row 3: details box + dimensions (hidden when Buy Out) -->
         <div id="details-dim-row" class="form-row">
           <fieldset style="border:none;padding:0;margin:0;">
@@ -282,6 +306,9 @@
             <th colspan="3" class="center dim-group">Height</th>
             <th colspan="3" class="center dim-group">Depth</th>
             <th rowspan="2" class="center">Buy Out</th>
+            <th rowspan="2">Supplier</th>
+            <th rowspan="2">Part No.</th>
+            <th rowspan="2">Supplier Price</th>
             <th rowspan="2" class="center">Door Qty</th>
             <th rowspan="2" class="center">Top Drawer Qty</th>
             <th rowspan="2" class="center">Lower Drawer Qty</th>
@@ -302,7 +329,7 @@
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="27" id="table-status">Loading...</td></tr>
+          <tr><td colspan="30" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -379,12 +406,12 @@
     }
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="27" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="30" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
         renderTable(await res.json());
       } catch {
-        tbody.innerHTML = '<tr><td colspan="27" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="30" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
@@ -393,7 +420,7 @@
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="27" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="30" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
@@ -413,6 +440,9 @@
           <td class="dim-cell center">${dim(r.depthMax)}</td>
           <td class="dim-cell dim-last center">${dim(r.depthStd)}</td>
           <td class="center"><span class="badge ${r.buyOut ? 'yes' : 'no'}">${r.buyOut ? 'Yes' : 'No'}</span></td>
+          <td>${esc(r.supplierName ?? '')}</td>
+          <td style="font-family:monospace">${esc(r.supplierPartNo ?? '')}</td>
+          <td>${r.supplierPrice != null ? '$' + Number(r.supplierPrice).toFixed(2) : ''}</td>
           <td class="center">${r.doorQty}</td>
           <td class="center">${r.topDrawerQty}</td>
           <td class="center">${r.lowerDrawerQty}</td>
@@ -461,6 +491,9 @@
       const shelfQty       = document.getElementById('shelfQty').value;
       const partitionQty   = document.getElementById('partitionQty').value;
       const buyOut         = document.getElementById('buyOut').checked;
+      const supplierName   = document.getElementById('supplierName').value.trim();
+      const supplierPartNo = document.getElementById('supplierPartNo').value.trim();
+      const supplierPrice  = document.getElementById('supplierPrice').value;
       const finInt         = document.getElementById('finInt').checked;
       const faceFrame      = document.getElementById('faceFrame').checked;
       const multiFace      = document.getElementById('multiFace').checked;
@@ -478,7 +511,8 @@
           body: JSON.stringify({ configuration, configCode, productLine, type,
             widthMin, widthMax, widthStd, heightMin, heightMax, heightStd,
             depthMin, depthMax, depthStd, doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
-            buyOut, finInt, faceFrame, multiFace, angled, price, notes,
+            buyOut, supplierName, supplierPartNo, supplierPrice,
+            finInt, faceFrame, multiFace, angled, price, notes,
             image: uploadedImagePath || undefined })
         });
         const data = await res.json();
@@ -510,11 +544,14 @@
       return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    // Buy Out toggle — hide Details + Dimensions when checked
+    // Buy Out toggle
     const buyOutChk     = document.getElementById('buyOut');
     const detailsDimRow = document.getElementById('details-dim-row');
+    const supplierRow   = document.getElementById('supplier-row');
     buyOutChk.addEventListener('change', () => {
-      detailsDimRow.style.display = buyOutChk.checked ? 'none' : '';
+      const on = buyOutChk.checked;
+      detailsDimRow.style.display = on ? 'none' : '';
+      supplierRow.style.display   = on ? ''     : 'none';
     });
 
     loadProductLines();
