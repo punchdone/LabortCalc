@@ -40,10 +40,11 @@
     .form-field.full { flex: 0 0 100%; }
     .form-field label { font-size: 13px; font-weight: bold; color: #444; }
     .form-field input[type="text"],
-    .form-field input[type="number"] {
-      padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit;
+    .form-field input[type="number"],
+    .form-field select {
+      padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; background: #fff;
     }
-    .form-field input:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
+    .form-field input:focus, .form-field select:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
 
     /* Checkbox field */
     .checkbox-field { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding-bottom: 2px; }
@@ -96,16 +97,18 @@
       <form id="add-form">
         <div class="form-row">
           <div class="form-field">
+            <label for="productLine">Product Line</label>
+            <select id="productLine">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+          <div class="form-field">
             <label for="configuration">Configuration</label>
             <input type="text" id="configuration" placeholder="e.g. Base Cabinet 24W" required>
           </div>
           <div class="form-field">
             <label for="description">Description</label>
             <input type="text" id="description" placeholder="Optional">
-          </div>
-          <div class="form-field">
-            <label for="productLine">Product Line</label>
-            <input type="text" id="productLine" placeholder="e.g. Shaker Series">
           </div>
           <div class="form-field">
             <label for="type">Type</label>
@@ -151,8 +154,8 @@
       <table>
         <thead>
           <tr>
-            <th>Configuration</th>
             <th>Product Line</th>
+            <th>Configuration</th>
             <th>Type</th>
             <th>Description</th>
             <th class="center">Width</th>
@@ -175,6 +178,18 @@
     const tbody = document.getElementById('records-body');
     const countEl = document.getElementById('record-count');
     const msgEl = document.getElementById('form-msg');
+    const plSelect = document.getElementById('productLine');
+
+    async function loadProductLines() {
+      try {
+        const res = await fetch('/api/product-lines');
+        const lines = await res.json();
+        plSelect.innerHTML = '<option value="">— Select Product Line —</option>' +
+          lines.map(pl => `<option value="${esc(pl.code)}">${esc(pl.code)} — ${esc(pl.description)}</option>`).join('');
+      } catch {
+        plSelect.innerHTML = '<option value="">Failed to load</option>';
+      }
+    }
 
     async function loadRecords() {
       tbody.innerHTML = '<tr><td colspan="10" id="table-status">Loading...</td></tr>';
@@ -195,8 +210,8 @@
       }
       tbody.innerHTML = records.map(r => `
         <tr>
-          <td>${esc(r.configuration)}</td>
           <td>${esc(r.productLine)}</td>
+          <td>${esc(r.configuration)}</td>
           <td>${esc(r.type)}</td>
           <td>${esc(r.description)}</td>
           <td class="center">${r.width  ?? '—'}</td>
@@ -228,9 +243,9 @@
 
     document.getElementById('add-form').addEventListener('submit', async function(e) {
       e.preventDefault();
+      const productLine   = document.getElementById('productLine').value;
       const configuration = document.getElementById('configuration').value.trim();
       const description   = document.getElementById('description').value.trim();
-      const productLine   = document.getElementById('productLine').value.trim();
       const type          = document.getElementById('type').value.trim();
       const width         = document.getElementById('width').value;
       const height        = document.getElementById('height').value;
@@ -257,6 +272,7 @@
         msgEl.className = 'form-msg success';
         msgEl.textContent = 'Entry added.';
         this.reset();
+        plSelect.value = '';
         document.getElementById('doorQty').value = '0';
         document.getElementById('drawerQty').value = '0';
         document.getElementById('width').value = '';
@@ -274,6 +290,7 @@
       return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    loadProductLines();
     loadRecords();
   </script>
 </body>
