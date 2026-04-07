@@ -147,12 +147,20 @@
                 <input type="number" id="doorQty" value="0" min="0" step="1">
               </div>
               <div class="form-field narrow">
-                <label for="drawerQty">Drawer Qty</label>
-                <input type="number" id="drawerQty" value="0" min="0" step="1">
+                <label for="topDrawerQty">Top Drawer Quantity</label>
+                <input type="number" id="topDrawerQty" value="0" min="0" step="1">
               </div>
               <div class="form-field narrow">
-                <label for="shelfQty">Shelf Qty</label>
+                <label for="lowerDrawerQty">Lower Drawer Quantity</label>
+                <input type="number" id="lowerDrawerQty" value="0" min="0" step="1">
+              </div>
+              <div class="form-field narrow">
+                <label for="shelfQty">Shelf Quantity</label>
                 <input type="number" id="shelfQty" value="0" min="0" step="1">
+              </div>
+              <div class="form-field narrow">
+                <label for="partitionQty">Partition Quantity</label>
+                <input type="number" id="partitionQty" value="0" min="0" step="1">
               </div>
               <div class="checkbox-field">
                 <input type="checkbox" id="finInt">
@@ -230,8 +238,10 @@
             <th colspan="3" class="center dim-group">Height</th>
             <th colspan="3" class="center dim-group">Depth</th>
             <th rowspan="2" class="center">Door Qty</th>
-            <th rowspan="2" class="center">Drawer Qty</th>
+            <th rowspan="2" class="center">Top Drawer Qty</th>
+            <th rowspan="2" class="center">Lower Drawer Qty</th>
             <th rowspan="2" class="center">Shelf Qty</th>
+            <th rowspan="2" class="center">Partition Qty</th>
             <th rowspan="2" class="center">Fin. Int.</th>
             <th rowspan="2" style="width:36px"></th>
           </tr>
@@ -242,7 +252,7 @@
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="19" id="table-status">Loading...</td></tr>
+          <tr><td colspan="21" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -319,12 +329,12 @@
     }
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="19" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="21" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
         renderTable(await res.json());
       } catch {
-        tbody.innerHTML = '<tr><td colspan="19" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="21" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
@@ -333,7 +343,7 @@
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="19" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="21" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
@@ -353,8 +363,10 @@
           <td class="dim-cell center">${dim(r.depthMax)}</td>
           <td class="dim-cell dim-last center">${dim(r.depthStd)}</td>
           <td class="center">${r.doorQty}</td>
-          <td class="center">${r.drawerQty}</td>
+          <td class="center">${r.topDrawerQty}</td>
+          <td class="center">${r.lowerDrawerQty}</td>
           <td class="center">${r.shelfQty}</td>
+          <td class="center">${r.partitionQty}</td>
           <td class="center"><span class="badge ${r.finInt ? 'yes' : 'no'}">${r.finInt ? 'Yes' : 'No'}</span></td>
           <td><button class="btn-delete" title="Delete" data-id="${r._id}">&#x2715;</button></td>
         </tr>
@@ -387,10 +399,12 @@
       const depthMin  = document.getElementById('depthMin').value;
       const depthMax  = document.getElementById('depthMax').value;
       const depthStd  = document.getElementById('depthStd').value;
-      const doorQty   = document.getElementById('doorQty').value;
-      const drawerQty = document.getElementById('drawerQty').value;
-      const shelfQty  = document.getElementById('shelfQty').value;
-      const finInt    = document.getElementById('finInt').checked;
+      const doorQty        = document.getElementById('doorQty').value;
+      const topDrawerQty   = document.getElementById('topDrawerQty').value;
+      const lowerDrawerQty = document.getElementById('lowerDrawerQty').value;
+      const shelfQty       = document.getElementById('shelfQty').value;
+      const partitionQty   = document.getElementById('partitionQty').value;
+      const finInt         = document.getElementById('finInt').checked;
 
       msgEl.className = 'form-msg';
       msgEl.textContent = '';
@@ -401,7 +415,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ configuration, configCode, productLine, type,
             widthMin, widthMax, widthStd, heightMin, heightMax, heightStd,
-            depthMin, depthMax, depthStd, doorQty, drawerQty, shelfQty, finInt,
+            depthMin, depthMax, depthStd, doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty, finInt,
             image: uploadedImagePath || undefined })
         });
         const data = await res.json();
@@ -416,8 +430,10 @@
         plSelect.value = '';
         typeSelect.value = '';
         document.getElementById('doorQty').value = '0';
-        document.getElementById('drawerQty').value = '0';
+        document.getElementById('topDrawerQty').value = '0';
+        document.getElementById('lowerDrawerQty').value = '0';
         document.getElementById('shelfQty').value = '0';
+        document.getElementById('partitionQty').value = '0';
         resetImageUpload();
         loadRecords();
         setTimeout(() => msgEl.textContent = '', 3000);

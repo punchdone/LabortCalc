@@ -97,9 +97,11 @@ const catalogueSchema = new mongoose.Schema({
   depthMin:  { type: Number, default: null },
   depthMax:  { type: Number, default: null },
   depthStd:  { type: Number, default: null },
-  doorQty:       { type: Number, default: 0 },
-  drawerQty:     { type: Number, default: 0 },
-  shelfQty:      { type: Number, default: 0 },
+  doorQty:         { type: Number, default: 0 },
+  topDrawerQty:    { type: Number, default: 0 },
+  lowerDrawerQty:  { type: Number, default: 0 },
+  shelfQty:        { type: Number, default: 0 },
+  partitionQty:    { type: Number, default: 0 },
   finInt:        { type: Boolean, default: false },
   image:         { type: String, trim: true }
 }, { timestamps: true });
@@ -571,7 +573,7 @@ app.post('/api/catalogue', async (req, res) => {
           widthMin, widthMax, widthStd,
           heightMin, heightMax, heightStd,
           depthMin, depthMax, depthStd,
-          doorQty, drawerQty, shelfQty, finInt, image } = req.body;
+          doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty, finInt, image } = req.body;
   if (!configuration) {
     return res.status(400).json({ error: 'configuration is required.' });
   }
@@ -589,9 +591,11 @@ app.post('/api/catalogue', async (req, res) => {
       widthMin:  toNum(widthMin),  widthMax:  toNum(widthMax),  widthStd:  toNum(widthStd),
       heightMin: toNum(heightMin), heightMax: toNum(heightMax), heightStd: toNum(heightStd),
       depthMin:  toNum(depthMin),  depthMax:  toNum(depthMax),  depthStd:  toNum(depthStd),
-      doorQty:   Number(doorQty   ?? 0),
-      drawerQty: Number(drawerQty ?? 0),
-      shelfQty:  Number(shelfQty  ?? 0),
+      doorQty:        Number(doorQty        ?? 0),
+      topDrawerQty:   Number(topDrawerQty   ?? 0),
+      lowerDrawerQty: Number(lowerDrawerQty ?? 0),
+      shelfQty:       Number(shelfQty       ?? 0),
+      partitionQty:   Number(partitionQty   ?? 0),
       finInt:    Boolean(finInt),
       image:     image || undefined
     });
