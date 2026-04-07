@@ -36,6 +36,13 @@
     }
     .form-field input:focus, .form-field select:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
 
+    /* Image upload */
+    .img-upload-box { display:flex; align-items:center; gap:10px; padding:8px 12px; border:2px dashed #bdd; border-radius:6px; cursor:pointer; min-height:52px; background:#fafff a; transition:border-color 0.15s; }
+    .img-upload-box:hover { border-color:#3a7d44; }
+    th.img-col { width:70px; text-align:center; }
+    td.img-col { text-align:center; padding:4px 8px; }
+    td.img-col img { max-height:48px; max-width:60px; object-fit:cover; border-radius:3px; cursor:pointer; }
+
     /* Dimension mini-table inside form */
     .dim-wrap { flex: 0 0 auto; }
     .dim-wrap > label { display: block; font-size: 13px; font-weight: bold; color: #444; margin-bottom: 6px; }
@@ -126,6 +133,18 @@
           </div>
         </div>
 
+        <div class="form-row">
+          <div class="form-field">
+            <label>Image</label>
+            <div class="img-upload-box" id="img-upload-box">
+              <input type="file" id="imageFile" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none">
+              <img id="img-preview" src="" alt="" style="display:none; max-height:80px; max-width:140px; border-radius:4px; object-fit:cover;">
+              <span id="img-placeholder" style="color:#aaa; font-size:13px;">Click to add image</span>
+              <button type="button" id="img-clear" style="display:none; margin-left:8px; background:none; border:none; color:#c0392b; cursor:pointer; font-size:18px; line-height:1;" title="Remove image">&#x2715;</button>
+            </div>
+          </div>
+        </div>
+
         <div class="form-row" style="align-items:flex-start; flex-wrap:wrap; gap:20px;">
           <div class="dim-wrap">
             <label>Dimensions</label>
@@ -193,6 +212,7 @@
       <table>
         <thead>
           <tr>
+            <th rowspan="2" class="img-col">Image</th>
             <th rowspan="2">Product Line</th>
             <th rowspan="2">Product Type</th>
             <th rowspan="2">Config Code</th>
@@ -213,7 +233,7 @@
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="18" id="table-status">Loading...</td></tr>
+          <tr><td colspan="19" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -225,6 +245,51 @@
     const msgEl   = document.getElementById('form-msg');
     const plSelect   = document.getElementById('productLine');
     const typeSelect = document.getElementById('type');
+
+    // --- Image upload ---
+    let uploadedImagePath = null;
+    const imgBox     = document.getElementById('img-upload-box');
+    const imgFile    = document.getElementById('imageFile');
+    const imgPreview = document.getElementById('img-preview');
+    const imgHolder  = document.getElementById('img-placeholder');
+    const imgClear   = document.getElementById('img-clear');
+
+    imgBox.addEventListener('click', e => { if (e.target !== imgClear) imgFile.click(); });
+    imgFile.addEventListener('change', async () => {
+      const file = imgFile.files[0];
+      if (!file) return;
+      const fd = new FormData();
+      fd.append('image', file);
+      try {
+        const res  = await fetch('/api/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok) { alert(data.error || 'Upload failed.'); return; }
+        uploadedImagePath = data.path;
+        imgPreview.src = data.path;
+        imgPreview.style.display = '';
+        imgHolder.style.display  = 'none';
+        imgClear.style.display   = '';
+      } catch { alert('Upload failed.'); }
+    });
+    imgClear.addEventListener('click', async e => {
+      e.stopPropagation();
+      if (uploadedImagePath) {
+        await fetch('/api/upload', { method: 'DELETE', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ filePath: uploadedImagePath }) });
+        uploadedImagePath = null;
+      }
+      imgFile.value = '';
+      imgPreview.style.display = 'none';
+      imgHolder.style.display  = '';
+      imgClear.style.display   = 'none';
+    });
+
+    function resetImageUpload() {
+      uploadedImagePath = null;
+      imgFile.value = '';
+      imgPreview.style.display = 'none';
+      imgHolder.style.display  = '';
+      imgClear.style.display   = 'none';
+    }
 
     async function loadProductLines() {
       try {
@@ -245,12 +310,12 @@
     }
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="18" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="19" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
         renderTable(await res.json());
       } catch {
-        tbody.innerHTML = '<tr><td colspan="18" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="19" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
@@ -259,11 +324,12 @@
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="18" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="19" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
         <tr>
+          <td class="img-col">${r.image ? `<img src="${esc(r.image)}" alt="image" onclick="window.open('${esc(r.image)}')">` : ''}</td>
           <td>${esc(r.productLine)}</td>
           <td>${esc(r.type)}</td>
           <td style="font-family:monospace">${esc(r.configCode ?? '')}</td>
@@ -326,7 +392,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ configuration, configCode, description, productLine, type,
             widthMin, widthMax, widthStd, heightMin, heightMax, heightStd,
-            depthMin, depthMax, depthStd, doorQty, drawerQty, finInt })
+            depthMin, depthMax, depthStd, doorQty, drawerQty, finInt,
+            image: uploadedImagePath || undefined })
         });
         const data = await res.json();
         if (!res.ok) {
@@ -341,6 +408,7 @@
         typeSelect.value = '';
         document.getElementById('doorQty').value = '0';
         document.getElementById('drawerQty').value = '0';
+        resetImageUpload();
         loadRecords();
         setTimeout(() => msgEl.textContent = '', 3000);
       } catch {

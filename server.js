@@ -6,6 +6,21 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: path.join(__dirname, 'public', 'uploads'),
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+    }
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (req, file, cb) => {
+    cb(null, /^image\/(jpeg|png|gif|webp)$/.test(file.mimetype));
+  }
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -84,7 +99,8 @@ const catalogueSchema = new mongoose.Schema({
   depthStd:  { type: Number, default: null },
   doorQty:       { type: Number, default: 0 },
   drawerQty:     { type: Number, default: 0 },
-  finInt:        { type: Boolean, default: false }
+  finInt:        { type: Boolean, default: false },
+  image:         { type: String, trim: true }
 }, { timestamps: true });
 const Catalogue = mongoose.model('Catalogue', catalogueSchema);
 
@@ -535,12 +551,26 @@ app.get('/api/catalogue', async (req, res) => {
   }
 });
 
+// Image upload
+app.post('/api/upload', requireAuth, upload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No valid image file received.' });
+  res.json({ path: `/uploads/${req.file.filename}` });
+});
+
+// Delete an uploaded image file
+app.delete('/api/upload', requireAuth, (req, res) => {
+  const { filePath } = req.body;
+  if (!filePath || !filePath.startsWith('/uploads/')) return res.status(400).json({ error: 'Invalid path.' });
+  const abs = path.join(__dirname, 'public', filePath);
+  fs.unlink(abs, () => res.json({ ok: true }));
+});
+
 app.post('/api/catalogue', async (req, res) => {
   const { configuration, configCode, description, productLine, type,
           widthMin, widthMax, widthStd,
           heightMin, heightMax, heightStd,
           depthMin, depthMax, depthStd,
-          doorQty, drawerQty, finInt } = req.body;
+          doorQty, drawerQty, finInt, image } = req.body;
   if (!configuration) {
     return res.status(400).json({ error: 'configuration is required.' });
   }
@@ -560,7 +590,8 @@ app.post('/api/catalogue', async (req, res) => {
       depthMin:  toNum(depthMin),  depthMax:  toNum(depthMax),  depthStd:  toNum(depthStd),
       doorQty:   Number(doorQty   ?? 0),
       drawerQty: Number(drawerQty ?? 0),
-      finInt:    Boolean(finInt)
+      finInt:    Boolean(finInt),
+      image:     image || undefined
     });
     res.status(201).json(record);
   } catch (err) {
