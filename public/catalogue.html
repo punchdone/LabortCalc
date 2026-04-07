@@ -215,7 +215,15 @@
           </div>
         </div>
 
-        <!-- Row 3: image picker + submit -->
+        <!-- Row 3: notes -->
+        <div class="form-row">
+          <div class="form-field">
+            <label for="notes">Notes</label>
+            <textarea id="notes" placeholder="Optional notes..." rows="2" style="padding:8px 10px; border:1px solid #bbb; border-radius:4px; font-size:14px; font-family:inherit; resize:vertical; background:#fff;"></textarea>
+          </div>
+        </div>
+
+        <!-- Row 4: image picker + submit -->
         <div class="form-row" style="align-items:flex-end;">
           <div class="img-field">
             <label>Image</label>
@@ -258,6 +266,7 @@
             <th rowspan="2" class="center">Face Frame</th>
             <th rowspan="2" class="center">Multi-Face</th>
             <th rowspan="2" class="center">Angled</th>
+            <th rowspan="2">Notes</th>
             <th rowspan="2" style="width:36px"></th>
           </tr>
           <tr>
@@ -267,7 +276,7 @@
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="24" id="table-status">Loading...</td></tr>
+          <tr><td colspan="25" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -344,12 +353,12 @@
     }
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="24" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="25" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
         renderTable(await res.json());
       } catch {
-        tbody.innerHTML = '<tr><td colspan="24" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="25" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
@@ -358,7 +367,7 @@
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="24" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="25" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
@@ -386,6 +395,7 @@
           <td class="center"><span class="badge ${r.faceFrame ? 'yes' : 'no'}">${r.faceFrame ? 'Yes' : 'No'}</span></td>
           <td class="center"><span class="badge ${r.multiFace ? 'yes' : 'no'}">${r.multiFace ? 'Yes' : 'No'}</span></td>
           <td class="center"><span class="badge ${r.angled    ? 'yes' : 'no'}">${r.angled    ? 'Yes' : 'No'}</span></td>
+          <td style="max-width:200px; white-space:normal;">${esc(r.notes ?? '')}</td>
           <td><button class="btn-delete" title="Delete" data-id="${r._id}">&#x2715;</button></td>
         </tr>
       `).join('');
@@ -426,6 +436,7 @@
       const faceFrame      = document.getElementById('faceFrame').checked;
       const multiFace      = document.getElementById('multiFace').checked;
       const angled         = document.getElementById('angled').checked;
+      const notes          = document.getElementById('notes').value.trim();
 
       msgEl.className = 'form-msg';
       msgEl.textContent = '';
@@ -437,7 +448,7 @@
           body: JSON.stringify({ configuration, configCode, productLine, type,
             widthMin, widthMax, widthStd, heightMin, heightMax, heightStd,
             depthMin, depthMax, depthStd, doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
-            finInt, faceFrame, multiFace, angled,
+            finInt, faceFrame, multiFace, angled, notes,
             image: uploadedImagePath || undefined })
         });
         const data = await res.json();
