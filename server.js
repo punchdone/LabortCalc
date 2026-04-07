@@ -148,6 +148,11 @@ app.get('/catalogue', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'catalogue.html'));
 });
 
+// Settings page
+app.get('/settings', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'settings.html'));
+});
+
 // Register / user management page (admin only)
 app.get('/register', requireAuth, requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'register.html'));

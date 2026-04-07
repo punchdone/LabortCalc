@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — Rainier Woodworking</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f7f4; }
+    .page-content { max-width: 800px; margin: 32px auto; padding: 0 20px; }
+
+    nav { background: #1e421e; border-bottom: 2px solid #3a7d44; display: flex; align-items: center; padding: 0 28px; height: 52px; gap: 8px; }
+    .nav-brand { color: #c8e6c9; font-size: 15px; font-weight: bold; letter-spacing: 0.03em; margin-right: auto; text-decoration: none; }
+    .nav-brand:hover { color: #fff; }
+    .nav-link { color: #c8e6c9; text-decoration: none; font-size: 14px; padding: 6px 14px; border-radius: 4px; transition: background 0.15s; }
+    .nav-link:hover { background: rgba(58,125,68,0.6); color: #fff; }
+    .nav-link.active { background: #3a7d44; color: #fff; }
+    .nav-sep { width: 1px; height: 24px; background: rgba(200,230,201,0.2); }
+    .nav-signout { color: #a5c8a7; font-size: 13px; padding: 6px 12px; border-radius: 4px; cursor: pointer; background: none; border: none; font-family: inherit; }
+    .nav-signout:hover { background: rgba(200,80,80,0.25); color: #fff; }
+
+    h1 { color: #2a5c2a; margin: 0 0 8px 0; font-size: 22px; }
+    .page-subtitle { color: #666; font-size: 14px; margin: 0 0 28px 0; }
+
+    .settings-group {
+      background: #fff;
+      border: 1px solid #cde0cd;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+    .settings-group-header {
+      background: #3a7d44;
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .settings-group-body { padding: 20px 24px; }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #eef3ee;
+      gap: 24px;
+    }
+    .setting-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .setting-row:first-child { padding-top: 0; }
+    .setting-label { flex: 1; }
+    .setting-label strong { display: block; font-size: 14px; color: #333; margin-bottom: 2px; }
+    .setting-label span { font-size: 12px; color: #888; }
+    .setting-control { flex: 0 0 auto; }
+    .setting-control input[type="text"],
+    .setting-control input[type="number"],
+    .setting-control select {
+      padding: 7px 10px;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      min-width: 200px;
+    }
+    .setting-control input:focus,
+    .setting-control select:focus {
+      outline: none;
+      border-color: #3a7d44;
+      box-shadow: 0 0 0 2px rgba(58,125,68,0.2);
+    }
+
+    .btn-save { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; }
+    .btn-save:hover { background: #2e6336; }
+    .save-row { display: flex; justify-content: flex-end; margin-top: 4px; }
+    .save-msg { font-size: 13px; margin-top: 8px; text-align: right; min-height: 18px; }
+    .save-msg.success { color: #2a7d3a; }
+    .save-msg.error   { color: #c0392b; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="nav-brand">Rainier Woodworking</a>
+    <a href="/" class="nav-link">Home</a>
+    <a href="/laborcalc" class="nav-link">LaborCalc</a>
+    <a href="/activity-drivers" class="nav-link">Activity Drivers</a>
+    <a href="/catalogue" class="nav-link">Catalogue</a>
+    <a href="/register" class="nav-link">Users</a>
+    <a href="/settings" class="nav-link active">Settings</a>
+    <div class="nav-sep"></div>
+    <form method="POST" action="/auth/logout" style="margin:0">
+      <button type="submit" class="nav-signout">Sign Out</button>
+    </form>
+  </nav>
+
+  <div class="page-content">
+    <h1>Settings</h1>
+    <p class="page-subtitle">Application configuration for Rainier Woodworking tools.</p>
+
+    <!-- Settings groups will be added here -->
+    <div class="settings-group">
+      <div class="settings-group-header">General</div>
+      <div class="settings-group-body">
+        <div class="setting-row">
+          <div class="setting-label">
+            <strong>No settings configured yet</strong>
+            <span>Settings added here will appear in this panel.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
