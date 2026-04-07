@@ -98,7 +98,7 @@
     <button type="button" class="clear" id="clear-btn">Clear</button>
   </form>
   <p id="status">Loading projects...</p>
-  <div class="section-title">Projects</div>
+  <div class="section-title" id="projects-pill" style="display:none">Projects</div>
   <table id="projects-table" style="display:none">
     <thead>
       <tr>
@@ -356,6 +356,7 @@
 
       status.style.display = 'none';
       table.style.display = 'table';
+      document.getElementById('projects-pill').style.display = 'inline-block';
     }
 
     fetch('/api/projects')
