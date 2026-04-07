@@ -7,9 +7,8 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f7f4; }
-    .page-content { max-width: 1300px; margin: 32px auto; padding: 0 20px; }
+    .page-content { max-width: 1400px; margin: 32px auto; padding: 0 20px; }
 
-    /* Nav ribbon */
     nav { background: #1e421e; border-bottom: 2px solid #3a7d44; display: flex; align-items: center; padding: 0 28px; height: 52px; gap: 8px; }
     .nav-brand { color: #c8e6c9; font-size: 15px; font-weight: bold; letter-spacing: 0.03em; margin-right: auto; text-decoration: none; }
     .nav-brand:hover { color: #fff; }
@@ -22,22 +21,13 @@
 
     h1 { color: #2a5c2a; margin: 0 0 24px 0; font-size: 22px; }
 
-    /* Form card */
-    .form-card {
-      background: #fff;
-      border: 1px solid #cde0cd;
-      border-radius: 8px;
-      padding: 24px 28px;
-      margin-bottom: 32px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
+    .form-card { background: #fff; border: 1px solid #cde0cd; border-radius: 8px; padding: 24px 28px; margin-bottom: 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
     .form-card h2 { margin: 0 0 18px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
 
     .form-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 14px; }
     .form-row:last-child { margin-bottom: 0; }
     .form-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
     .form-field.narrow { flex: 0 0 110px; min-width: unset; }
-    .form-field.full { flex: 0 0 100%; }
     .form-field label { font-size: 13px; font-weight: bold; color: #444; }
     .form-field input[type="text"],
     .form-field input[type="number"],
@@ -46,7 +36,16 @@
     }
     .form-field input:focus, .form-field select:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
 
-    /* Checkbox field */
+    /* Dimension mini-table inside form */
+    .dim-wrap { flex: 0 0 auto; }
+    .dim-wrap > label { display: block; font-size: 13px; font-weight: bold; color: #444; margin-bottom: 6px; }
+    .dim-grid { border-collapse: collapse; }
+    .dim-grid th { background: #e8f5e9; color: #2a5c2a; font-size: 12px; font-weight: bold; text-align: center; padding: 5px 10px; border: 1px solid #c8e0c8; }
+    .dim-grid td { padding: 4px 4px; border: 1px solid #c8e0c8; background: #fff; }
+    .dim-grid td.dim-label { font-size: 13px; font-weight: bold; color: #444; padding: 4px 10px; background: #e8f5e9; text-align: right; white-space: nowrap; }
+    .dim-grid input[type="number"] { width: 76px; padding: 5px 7px; border: 1px solid #bbb; border-radius: 3px; font-size: 13px; font-family: inherit; background: #fff; }
+    .dim-grid input[type="number"]:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.15); }
+
     .checkbox-field { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; padding-bottom: 2px; }
     .checkbox-field input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3a7d44; cursor: pointer; }
     .checkbox-field label { font-size: 13px; font-weight: bold; color: #444; cursor: pointer; white-space: nowrap; }
@@ -57,17 +56,21 @@
     .form-msg.success { color: #2a7d3a; }
     .form-msg.error { color: #c0392b; }
 
-    /* Table */
-    .table-card { background: #fff; border: 1px solid #cde0cd; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .table-card { background: #fff; border: 1px solid #cde0cd; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); overflow-x: auto; }
     .table-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 0 16px; }
     .section-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: #3a7d44; display: inline-block; padding: 3px 10px; border-radius: 4px 4px 0 0; }
     #record-count { font-size: 12px; color: #888; }
     table { width: 100%; border-collapse: collapse; }
-    th { background: #3a7d44; color: #fff; text-align: left; padding: 10px 12px; font-size: 13px; }
-    td { padding: 9px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; vertical-align: middle; }
+    th { background: #3a7d44; color: #fff; text-align: left; padding: 8px 10px; font-size: 12px; white-space: nowrap; }
+    th.sub { background: #2e6336; font-size: 11px; text-align: center; padding: 5px 8px; }
+    th.dim-group { text-align: center; border-left: 2px solid #4a9d54; border-right: 2px solid #4a9d54; }
+    td { padding: 8px 10px; border-bottom: 1px solid #e8f0e8; font-size: 12px; vertical-align: middle; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #f2f7f2; }
     th.center, td.center { text-align: center; }
+    td.dim-cell { text-align: center; border-left: 1px solid #e0ece0; }
+    td.dim-first { border-left: 2px solid #c8e0c8; }
+    td.dim-last  { border-right: 2px solid #c8e0c8; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
     .badge.yes { background: #d4edda; color: #1e7e34; }
     .badge.no  { background: #f0f0f0; color: #888; }
@@ -122,33 +125,62 @@
             <input type="text" id="description" placeholder="Optional">
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-field narrow">
-            <label for="width">Width</label>
-            <input type="number" id="width" placeholder="—" step="any" min="0">
+
+        <div class="form-row" style="align-items:flex-start; flex-wrap:wrap; gap:20px;">
+          <div class="dim-wrap">
+            <label>Dimensions</label>
+            <table class="dim-grid">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Min</th>
+                  <th>Max</th>
+                  <th>Standard</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="dim-label">Width</td>
+                  <td><input type="number" id="widthMin" placeholder="—" step="any" min="0"></td>
+                  <td><input type="number" id="widthMax" placeholder="—" step="any" min="0"></td>
+                  <td><input type="number" id="widthStd" placeholder="—" step="any" min="0"></td>
+                </tr>
+                <tr>
+                  <td class="dim-label">Height</td>
+                  <td><input type="number" id="heightMin" placeholder="—" step="any" min="0"></td>
+                  <td><input type="number" id="heightMax" placeholder="—" step="any" min="0"></td>
+                  <td><input type="number" id="heightStd" placeholder="—" step="any" min="0"></td>
+                </tr>
+                <tr>
+                  <td class="dim-label">Depth</td>
+                  <td><input type="number" id="depthMin" placeholder="—" step="any" min="0"></td>
+                  <td><input type="number" id="depthMax" placeholder="—" step="any" min="0"></td>
+                  <td><input type="number" id="depthStd" placeholder="—" step="any" min="0"></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div class="form-field narrow">
-            <label for="height">Height</label>
-            <input type="number" id="height" placeholder="—" step="any" min="0">
+
+          <div style="display:flex; flex-direction:column; gap:12px; align-self:flex-end;">
+            <div class="form-field narrow">
+              <label for="doorQty">Door Qty</label>
+              <input type="number" id="doorQty" value="0" min="0" step="1">
+            </div>
+            <div class="form-field narrow">
+              <label for="drawerQty">Drawer Qty</label>
+              <input type="number" id="drawerQty" value="0" min="0" step="1">
+            </div>
+            <div class="checkbox-field">
+              <input type="checkbox" id="finInt">
+              <label for="finInt">Finished Interior</label>
+            </div>
           </div>
-          <div class="form-field narrow">
-            <label for="depth">Depth</label>
-            <input type="number" id="depth" placeholder="—" step="any" min="0">
+
+          <div style="align-self:flex-end;">
+            <button type="submit" class="btn-submit">Add</button>
           </div>
-          <div class="form-field narrow">
-            <label for="doorQty">Door Qty</label>
-            <input type="number" id="doorQty" value="0" min="0" step="1">
-          </div>
-          <div class="form-field narrow">
-            <label for="drawerQty">Drawer Qty</label>
-            <input type="number" id="drawerQty" value="0" min="0" step="1">
-          </div>
-          <div class="checkbox-field" style="padding-bottom:8px">
-            <input type="checkbox" id="finInt">
-            <label for="finInt">Finished Interior</label>
-          </div>
-          <button type="submit" class="btn-submit">Add</button>
         </div>
+
         <div class="form-msg" id="form-msg"></div>
       </form>
     </div>
@@ -161,31 +193,36 @@
       <table>
         <thead>
           <tr>
-            <th>Product Line</th>
-            <th>Configuration</th>
-            <th>Type</th>
-            <th>Config Code</th>
-            <th>Description</th>
-            <th class="center">Width</th>
-            <th class="center">Height</th>
-            <th class="center">Depth</th>
-            <th class="center">Door Qty</th>
-            <th class="center">Drawer Qty</th>
-            <th class="center">Fin. Interior</th>
-            <th style="width:40px"></th>
+            <th rowspan="2">Product Line</th>
+            <th rowspan="2">Configuration</th>
+            <th rowspan="2">Type</th>
+            <th rowspan="2">Config Code</th>
+            <th rowspan="2">Description</th>
+            <th colspan="3" class="center dim-group">Width</th>
+            <th colspan="3" class="center dim-group">Height</th>
+            <th colspan="3" class="center dim-group">Depth</th>
+            <th rowspan="2" class="center">Door Qty</th>
+            <th rowspan="2" class="center">Drawer Qty</th>
+            <th rowspan="2" class="center">Fin. Int.</th>
+            <th rowspan="2" style="width:36px"></th>
+          </tr>
+          <tr>
+            <th class="sub">Min</th><th class="sub">Max</th><th class="sub">Std</th>
+            <th class="sub">Min</th><th class="sub">Max</th><th class="sub">Std</th>
+            <th class="sub">Min</th><th class="sub">Max</th><th class="sub">Std</th>
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="12" id="table-status">Loading...</td></tr>
+          <tr><td colspan="18" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <script>
-    const tbody = document.getElementById('records-body');
+    const tbody   = document.getElementById('records-body');
     const countEl = document.getElementById('record-count');
-    const msgEl = document.getElementById('form-msg');
+    const msgEl   = document.getElementById('form-msg');
     const plSelect   = document.getElementById('productLine');
     const typeSelect = document.getElementById('type');
 
@@ -195,9 +232,7 @@
         const lines = await res.json();
         plSelect.innerHTML = '<option value="">— Select Product Line —</option>' +
           lines.map(pl => `<option value="${esc(pl.code)}">${esc(pl.code)} — ${esc(pl.description)}</option>`).join('');
-      } catch {
-        plSelect.innerHTML = '<option value="">Failed to load</option>';
-      }
+      } catch { plSelect.innerHTML = '<option value="">Failed to load</option>'; }
     }
 
     async function loadProductTypes() {
@@ -206,26 +241,25 @@
         const types = await res.json();
         typeSelect.innerHTML = '<option value="">— Select Type —</option>' +
           types.map(pt => `<option value="${esc(pt.code)}">${esc(pt.code)} — ${esc(pt.description)}</option>`).join('');
-      } catch {
-        typeSelect.innerHTML = '<option value="">Failed to load</option>';
-      }
+      } catch { typeSelect.innerHTML = '<option value="">Failed to load</option>'; }
     }
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="12" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="18" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
-        const records = await res.json();
-        renderTable(records);
+        renderTable(await res.json());
       } catch {
-        tbody.innerHTML = '<tr><td colspan="12" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="18" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
+
+    function dim(v) { return v != null ? v : '—'; }
 
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="12" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="18" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
@@ -235,18 +269,21 @@
           <td>${esc(r.type)}</td>
           <td style="font-family:monospace">${esc(r.configCode ?? '')}</td>
           <td>${esc(r.description)}</td>
-          <td class="center">${r.width  ?? '—'}</td>
-          <td class="center">${r.height ?? '—'}</td>
-          <td class="center">${r.depth  ?? '—'}</td>
+          <td class="dim-cell dim-first center">${dim(r.widthMin)}</td>
+          <td class="dim-cell center">${dim(r.widthMax)}</td>
+          <td class="dim-cell dim-last center">${dim(r.widthStd)}</td>
+          <td class="dim-cell dim-first center">${dim(r.heightMin)}</td>
+          <td class="dim-cell center">${dim(r.heightMax)}</td>
+          <td class="dim-cell dim-last center">${dim(r.heightStd)}</td>
+          <td class="dim-cell dim-first center">${dim(r.depthMin)}</td>
+          <td class="dim-cell center">${dim(r.depthMax)}</td>
+          <td class="dim-cell dim-last center">${dim(r.depthStd)}</td>
           <td class="center">${r.doorQty}</td>
           <td class="center">${r.drawerQty}</td>
-          <td class="center">
-            <span class="badge ${r.finInt ? 'yes' : 'no'}">${r.finInt ? 'Yes' : 'No'}</span>
-          </td>
+          <td class="center"><span class="badge ${r.finInt ? 'yes' : 'no'}">${r.finInt ? 'Yes' : 'No'}</span></td>
           <td><button class="btn-delete" title="Delete" data-id="${r._id}">&#x2715;</button></td>
         </tr>
       `).join('');
-
       tbody.querySelectorAll('.btn-delete').forEach(btn => {
         btn.addEventListener('click', () => deleteRecord(btn.dataset.id));
       });
@@ -257,24 +294,28 @@
       try {
         await fetch(`/api/catalogue/${id}`, { method: 'DELETE' });
         loadRecords();
-      } catch {
-        alert('Failed to delete entry.');
-      }
+      } catch { alert('Failed to delete entry.'); }
     }
 
     document.getElementById('add-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const productLine   = document.getElementById('productLine').value;
+      const productLine   = plSelect.value;
       const configuration = document.getElementById('configuration').value.trim();
-      const type          = document.getElementById('type').value;
+      const type          = typeSelect.value;
       const configCode    = document.getElementById('configCode').value.trim();
       const description   = document.getElementById('description').value.trim();
-      const width         = document.getElementById('width').value;
-      const height        = document.getElementById('height').value;
-      const depth         = document.getElementById('depth').value;
-      const doorQty       = document.getElementById('doorQty').value;
-      const drawerQty     = document.getElementById('drawerQty').value;
-      const finInt        = document.getElementById('finInt').checked;
+      const widthMin  = document.getElementById('widthMin').value;
+      const widthMax  = document.getElementById('widthMax').value;
+      const widthStd  = document.getElementById('widthStd').value;
+      const heightMin = document.getElementById('heightMin').value;
+      const heightMax = document.getElementById('heightMax').value;
+      const heightStd = document.getElementById('heightStd').value;
+      const depthMin  = document.getElementById('depthMin').value;
+      const depthMax  = document.getElementById('depthMax').value;
+      const depthStd  = document.getElementById('depthStd').value;
+      const doorQty   = document.getElementById('doorQty').value;
+      const drawerQty = document.getElementById('drawerQty').value;
+      const finInt    = document.getElementById('finInt').checked;
 
       msgEl.className = 'form-msg';
       msgEl.textContent = '';
@@ -283,7 +324,9 @@
         const res = await fetch('/api/catalogue', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ configuration, configCode, description, productLine, type, width, height, depth, doorQty, drawerQty, finInt })
+          body: JSON.stringify({ configuration, configCode, description, productLine, type,
+            widthMin, widthMax, widthStd, heightMin, heightMax, heightStd,
+            depthMin, depthMax, depthStd, doorQty, drawerQty, finInt })
         });
         const data = await res.json();
         if (!res.ok) {
@@ -298,9 +341,6 @@
         typeSelect.value = '';
         document.getElementById('doorQty').value = '0';
         document.getElementById('drawerQty').value = '0';
-        document.getElementById('width').value = '';
-        document.getElementById('height').value = '';
-        document.getElementById('depth').value = '';
         loadRecords();
         setTimeout(() => msgEl.textContent = '', 3000);
       } catch {

@@ -73,9 +73,15 @@ const catalogueSchema = new mongoose.Schema({
   description:   { type: String, trim: true },
   productLine:   { type: String, trim: true },
   type:          { type: String, trim: true },
-  width:         { type: Number, default: null },
-  height:        { type: Number, default: null },
-  depth:         { type: Number, default: null },
+  widthMin:  { type: Number, default: null },
+  widthMax:  { type: Number, default: null },
+  widthStd:  { type: Number, default: null },
+  heightMin: { type: Number, default: null },
+  heightMax: { type: Number, default: null },
+  heightStd: { type: Number, default: null },
+  depthMin:  { type: Number, default: null },
+  depthMax:  { type: Number, default: null },
+  depthStd:  { type: Number, default: null },
   doorQty:       { type: Number, default: 0 },
   drawerQty:     { type: Number, default: 0 },
   finInt:        { type: Boolean, default: false }
@@ -530,13 +536,18 @@ app.get('/api/catalogue', async (req, res) => {
 });
 
 app.post('/api/catalogue', async (req, res) => {
-  const { configuration, configCode, description, productLine, type, width, height, depth, doorQty, drawerQty, finInt } = req.body;
+  const { configuration, configCode, description, productLine, type,
+          widthMin, widthMax, widthStd,
+          heightMin, heightMax, heightStd,
+          depthMin, depthMax, depthStd,
+          doorQty, drawerQty, finInt } = req.body;
   if (!configuration) {
     return res.status(400).json({ error: 'configuration is required.' });
   }
   if (configCode && !/^[a-zA-Z0-9]{1,5}$/.test(configCode)) {
     return res.status(400).json({ error: 'Configuration code must be up to 5 alphanumeric characters.' });
   }
+  const toNum = v => (v !== '' && v != null) ? Number(v) : null;
   try {
     const record = await Catalogue.create({
       configuration,
@@ -544,9 +555,9 @@ app.post('/api/catalogue', async (req, res) => {
       description,
       productLine,
       type,
-      width:     width  !== '' && width  != null ? Number(width)  : null,
-      height:    height !== '' && height != null ? Number(height) : null,
-      depth:     depth  !== '' && depth  != null ? Number(depth)  : null,
+      widthMin:  toNum(widthMin),  widthMax:  toNum(widthMax),  widthStd:  toNum(widthStd),
+      heightMin: toNum(heightMin), heightMax: toNum(heightMax), heightStd: toNum(heightStd),
+      depthMin:  toNum(depthMin),  depthMax:  toNum(depthMax),  depthStd:  toNum(depthStd),
       doorQty:   Number(doorQty   ?? 0),
       drawerQty: Number(drawerQty ?? 0),
       finInt:    Boolean(finInt)
