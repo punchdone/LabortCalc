@@ -69,6 +69,7 @@ const FinishType = mongoose.model('FinishType', finishTypeSchema);
 
 const catalogueSchema = new mongoose.Schema({
   configuration: { type: String, required: true, trim: true },
+  configCode:    { type: String, trim: true, match: /^[a-zA-Z0-9]{0,5}$/ },
   description:   { type: String, trim: true },
   productLine:   { type: String, trim: true },
   type:          { type: String, trim: true },
@@ -529,13 +530,17 @@ app.get('/api/catalogue', async (req, res) => {
 });
 
 app.post('/api/catalogue', async (req, res) => {
-  const { configuration, description, productLine, type, width, height, depth, doorQty, drawerQty, finInt } = req.body;
+  const { configuration, configCode, description, productLine, type, width, height, depth, doorQty, drawerQty, finInt } = req.body;
   if (!configuration) {
     return res.status(400).json({ error: 'configuration is required.' });
+  }
+  if (configCode && !/^[a-zA-Z0-9]{1,5}$/.test(configCode)) {
+    return res.status(400).json({ error: 'Configuration code must be up to 5 alphanumeric characters.' });
   }
   try {
     const record = await Catalogue.create({
       configuration,
+      configCode: configCode || undefined,
       description,
       productLine,
       type,

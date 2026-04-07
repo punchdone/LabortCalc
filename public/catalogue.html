@@ -107,12 +107,19 @@
             <input type="text" id="configuration" placeholder="e.g. Base Cabinet 24W" required>
           </div>
           <div class="form-field">
-            <label for="description">Description</label>
-            <input type="text" id="description" placeholder="Optional">
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+          <div class="form-field narrow">
+            <label for="configCode">Config Code</label>
+            <input type="text" id="configCode" placeholder="e.g. BC24W" maxlength="5">
+            <span style="font-size:11px;color:#999">Up to 5 alphanumeric</span>
           </div>
           <div class="form-field">
-            <label for="type">Type</label>
-            <input type="text" id="type" placeholder="e.g. Base, Wall, Tall">
+            <label for="description">Description</label>
+            <input type="text" id="description" placeholder="Optional">
           </div>
         </div>
         <div class="form-row">
@@ -157,6 +164,7 @@
             <th>Product Line</th>
             <th>Configuration</th>
             <th>Type</th>
+            <th>Config Code</th>
             <th>Description</th>
             <th class="center">Width</th>
             <th class="center">Height</th>
@@ -168,7 +176,7 @@
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="10" id="table-status">Loading...</td></tr>
+          <tr><td colspan="12" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -178,7 +186,8 @@
     const tbody = document.getElementById('records-body');
     const countEl = document.getElementById('record-count');
     const msgEl = document.getElementById('form-msg');
-    const plSelect = document.getElementById('productLine');
+    const plSelect   = document.getElementById('productLine');
+    const typeSelect = document.getElementById('type');
 
     async function loadProductLines() {
       try {
@@ -191,21 +200,32 @@
       }
     }
 
+    async function loadProductTypes() {
+      try {
+        const res = await fetch('/api/product-types');
+        const types = await res.json();
+        typeSelect.innerHTML = '<option value="">— Select Type —</option>' +
+          types.map(pt => `<option value="${esc(pt.code)}">${esc(pt.code)} — ${esc(pt.description)}</option>`).join('');
+      } catch {
+        typeSelect.innerHTML = '<option value="">Failed to load</option>';
+      }
+    }
+
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="10" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="12" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
         const records = await res.json();
         renderTable(records);
       } catch {
-        tbody.innerHTML = '<tr><td colspan="10" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="10" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
@@ -213,6 +233,7 @@
           <td>${esc(r.productLine)}</td>
           <td>${esc(r.configuration)}</td>
           <td>${esc(r.type)}</td>
+          <td style="font-family:monospace">${esc(r.configCode ?? '')}</td>
           <td>${esc(r.description)}</td>
           <td class="center">${r.width  ?? '—'}</td>
           <td class="center">${r.height ?? '—'}</td>
@@ -245,8 +266,9 @@
       e.preventDefault();
       const productLine   = document.getElementById('productLine').value;
       const configuration = document.getElementById('configuration').value.trim();
+      const type          = document.getElementById('type').value;
+      const configCode    = document.getElementById('configCode').value.trim();
       const description   = document.getElementById('description').value.trim();
-      const type          = document.getElementById('type').value.trim();
       const width         = document.getElementById('width').value;
       const height        = document.getElementById('height').value;
       const depth         = document.getElementById('depth').value;
@@ -261,7 +283,7 @@
         const res = await fetch('/api/catalogue', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ configuration, description, productLine, type, width, height, depth, doorQty, drawerQty, finInt })
+          body: JSON.stringify({ configuration, configCode, description, productLine, type, width, height, depth, doorQty, drawerQty, finInt })
         });
         const data = await res.json();
         if (!res.ok) {
@@ -273,6 +295,7 @@
         msgEl.textContent = 'Entry added.';
         this.reset();
         plSelect.value = '';
+        typeSelect.value = '';
         document.getElementById('doorQty').value = '0';
         document.getElementById('drawerQty').value = '0';
         document.getElementById('width').value = '';
@@ -291,6 +314,7 @@
     }
 
     loadProductLines();
+    loadProductTypes();
     loadRecords();
   </script>
 </body>
