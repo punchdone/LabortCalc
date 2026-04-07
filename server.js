@@ -184,7 +184,7 @@ app.get('/api/product-types', async (req, res) => {
 app.post('/api/product-types', async (req, res) => {
   const { code, description } = req.body;
   if (!code || !description) return res.status(400).json({ error: 'Code and description are required.' });
-  if (!/^[a-zA-Z0-9]{2}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 2 digits.' });
+  if (!/^[a-zA-Z0-9]{2}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 2 alphanumeric characters.' });
   try {
     const exists = await ProductType.findOne({ code });
     if (exists) return res.status(409).json({ error: `Product type code "${code}" already exists.` });
@@ -198,7 +198,7 @@ app.post('/api/product-types', async (req, res) => {
 app.patch('/api/product-types/:id', async (req, res) => {
   const { code, description } = req.body;
   if (code && !/^\d{2}$/.test(code))
-    return res.status(400).json({ error: 'Code must be exactly 2 digits.' });
+    return res.status(400).json({ error: 'Code must be exactly 2 alphanumeric characters.' });
   try {
     const update = {};
     if (code        !== undefined) update.code        = code;
