@@ -37,7 +37,7 @@ const activityDriverSchema = new mongoose.Schema({
 const ActivityDriver = mongoose.model('ActivityDriver', activityDriverSchema);
 
 const workCenterSchema = new mongoose.Schema({
-  code:  { type: String, required: true, unique: true, trim: true, match: /^\d{3}$/ },
+  code:  { type: String, required: true, unique: true, trim: true, match: /^[a-zA-Z0-9]{3}$/ },
   title: { type: String, required: true, trim: true }
 }, { timestamps: true });
 const WorkCenter = mongoose.model('WorkCenter', workCenterSchema);
@@ -221,7 +221,7 @@ app.get('/api/work-centers', async (req, res) => {
 app.post('/api/work-centers', async (req, res) => {
   const { code, title } = req.body;
   if (!code || !title) return res.status(400).json({ error: 'Code and title are required.' });
-  if (!/^\d{3}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 3 digits.' });
+  if (!/^[a-zA-Z0-9]{3}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 3 alphanumeric characters.' });
   try {
     const exists = await WorkCenter.findOne({ code });
     if (exists) return res.status(409).json({ error: `Work center code "${code}" already exists.` });

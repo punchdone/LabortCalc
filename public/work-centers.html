@@ -33,7 +33,7 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.07);
     }
     .form-card h2 { margin: 0 0 16px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
-    .form-row { display: flex; gap: 12px; align-items: flex-end; }
+    .form-row { display: flex; gap: 12px; align-items: flex-start; }
     .form-field { display: flex; flex-direction: column; gap: 5px; }
     .form-field.code  { flex: 0 0 100px; }
     .form-field.title { flex: 1; }
@@ -41,7 +41,7 @@
     .form-field input { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; }
     .form-field input:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
     .hint { font-size: 12px; color: #888; }
-    .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; margin-top: 23px; }
     .btn-submit:hover { background: #2e6336; }
     .form-msg { margin-top: 12px; font-size: 13px; min-height: 18px; }
     .form-msg.success { color: #2a7d3a; }
@@ -87,7 +87,7 @@
           <div class="form-field code">
             <label for="code">Code</label>
             <input type="text" id="code" placeholder="e.g. 101" maxlength="3" required>
-            <span class="hint">3 digits</span>
+            <span class="hint">3 alphanumeric</span>
           </div>
           <div class="form-field title">
             <label for="title">Title</label>
@@ -170,9 +170,9 @@
       msgEl.className = 'form-msg';
       msgEl.textContent = '';
 
-      if (!/^\d{3}$/.test(code)) {
+      if (!/^[a-zA-Z0-9]{3}$/.test(code)) {
         msgEl.className = 'form-msg error';
-        msgEl.textContent = 'Code must be exactly 3 digits.';
+        msgEl.textContent = 'Code must be exactly 3 alphanumeric characters.';
         return;
       }
 
