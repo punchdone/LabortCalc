@@ -142,8 +142,16 @@
           </div>
         </div>
 
-        <!-- Row 2: details box + dimensions -->
+        <!-- Buy Out toggle -->
         <div class="form-row">
+          <div class="checkbox-field">
+            <input type="checkbox" id="buyOut">
+            <label for="buyOut">Buy Out</label>
+          </div>
+        </div>
+
+        <!-- Row 3: details box + dimensions (hidden when Buy Out) -->
+        <div id="details-dim-row" class="form-row">
           <fieldset style="border:none;padding:0;margin:0;">
             <div class="details-box">
               <legend>Details</legend>
@@ -273,6 +281,7 @@
             <th colspan="3" class="center dim-group">Width</th>
             <th colspan="3" class="center dim-group">Height</th>
             <th colspan="3" class="center dim-group">Depth</th>
+            <th rowspan="2" class="center">Buy Out</th>
             <th rowspan="2" class="center">Door Qty</th>
             <th rowspan="2" class="center">Top Drawer Qty</th>
             <th rowspan="2" class="center">Lower Drawer Qty</th>
@@ -293,7 +302,7 @@
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="26" id="table-status">Loading...</td></tr>
+          <tr><td colspan="27" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -370,12 +379,12 @@
     }
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="26" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="27" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
         renderTable(await res.json());
       } catch {
-        tbody.innerHTML = '<tr><td colspan="26" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="27" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
@@ -384,7 +393,7 @@
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="26" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="27" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
@@ -403,6 +412,7 @@
           <td class="dim-cell dim-first center">${dim(r.depthMin)}</td>
           <td class="dim-cell center">${dim(r.depthMax)}</td>
           <td class="dim-cell dim-last center">${dim(r.depthStd)}</td>
+          <td class="center"><span class="badge ${r.buyOut ? 'yes' : 'no'}">${r.buyOut ? 'Yes' : 'No'}</span></td>
           <td class="center">${r.doorQty}</td>
           <td class="center">${r.topDrawerQty}</td>
           <td class="center">${r.lowerDrawerQty}</td>
@@ -450,6 +460,7 @@
       const lowerDrawerQty = document.getElementById('lowerDrawerQty').value;
       const shelfQty       = document.getElementById('shelfQty').value;
       const partitionQty   = document.getElementById('partitionQty').value;
+      const buyOut         = document.getElementById('buyOut').checked;
       const finInt         = document.getElementById('finInt').checked;
       const faceFrame      = document.getElementById('faceFrame').checked;
       const multiFace      = document.getElementById('multiFace').checked;
@@ -467,7 +478,7 @@
           body: JSON.stringify({ configuration, configCode, productLine, type,
             widthMin, widthMax, widthStd, heightMin, heightMax, heightStd,
             depthMin, depthMax, depthStd, doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
-            finInt, faceFrame, multiFace, angled, price, notes,
+            buyOut, finInt, faceFrame, multiFace, angled, price, notes,
             image: uploadedImagePath || undefined })
         });
         const data = await res.json();
@@ -498,6 +509,13 @@
     function esc(str) {
       return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
+
+    // Buy Out toggle — hide Details + Dimensions when checked
+    const buyOutChk     = document.getElementById('buyOut');
+    const detailsDimRow = document.getElementById('details-dim-row');
+    buyOutChk.addEventListener('change', () => {
+      detailsDimRow.style.display = buyOutChk.checked ? 'none' : '';
+    });
 
     loadProductLines();
     loadProductTypes();

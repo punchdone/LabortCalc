@@ -102,6 +102,7 @@ const catalogueSchema = new mongoose.Schema({
   lowerDrawerQty:  { type: Number, default: 0 },
   shelfQty:        { type: Number, default: 0 },
   partitionQty:    { type: Number, default: 0 },
+  buyOut:        { type: Boolean, default: false },
   finInt:        { type: Boolean, default: false },
   faceFrame:     { type: Boolean, default: false },
   multiFace:     { type: Boolean, default: false },
@@ -579,7 +580,7 @@ app.post('/api/catalogue', async (req, res) => {
           heightMin, heightMax, heightStd,
           depthMin, depthMax, depthStd,
           doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
-          finInt, faceFrame, multiFace, angled, price, notes, image } = req.body;
+          buyOut, finInt, faceFrame, multiFace, angled, price, notes, image } = req.body;
   if (!configuration) {
     return res.status(400).json({ error: 'configuration is required.' });
   }
@@ -602,6 +603,7 @@ app.post('/api/catalogue', async (req, res) => {
       lowerDrawerQty: Number(lowerDrawerQty ?? 0),
       shelfQty:       Number(shelfQty       ?? 0),
       partitionQty:   Number(partitionQty   ?? 0),
+      buyOut:    Boolean(buyOut),
       finInt:    Boolean(finInt),
       faceFrame: Boolean(faceFrame),
       multiFace: Boolean(multiFace),
