@@ -195,6 +195,22 @@ app.post('/api/product-types', async (req, res) => {
   }
 });
 
+app.patch('/api/product-types/:id', async (req, res) => {
+  const { code, description } = req.body;
+  if (code && !/^\d{2}$/.test(code))
+    return res.status(400).json({ error: 'Code must be exactly 2 digits.' });
+  try {
+    const update = {};
+    if (code        !== undefined) update.code        = code;
+    if (description !== undefined) update.description = description;
+    const record = await ProductType.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!record) return res.status(404).json({ error: 'Not found.' });
+    res.json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.delete('/api/product-types/:id', async (req, res) => {
   try {
     await ProductType.findByIdAndDelete(req.params.id);

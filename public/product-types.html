@@ -26,15 +26,15 @@
 
     .form-card { background: #fff; border: 1px solid #cde0cd; border-radius: 8px; padding: 24px 28px; margin-bottom: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
     .form-card h2 { margin: 0 0 16px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
-    .form-row { display: flex; gap: 12px; align-items: flex-end; }
+    .form-row { display: flex; gap: 12px; align-items: flex-start; }
     .form-field { display: flex; flex-direction: column; gap: 5px; }
-    .form-field.code  { flex: 0 0 90px; }
-    .form-field.desc  { flex: 1; }
+    .form-field.f-code { flex: 0 0 90px; }
+    .form-field.f-desc { flex: 1; }
     .form-field label { font-size: 13px; font-weight: bold; color: #444; }
-    .form-field input { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; }
+    .form-field input { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; width: 100%; }
     .form-field input:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
     .hint { font-size: 12px; color: #888; }
-    .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; margin-top: 23px; }
     .btn-submit:hover { background: #2e6336; }
     .form-msg { margin-top: 12px; font-size: 13px; min-height: 18px; }
     .form-msg.success { color: #2a7d3a; }
@@ -46,11 +46,27 @@
     #record-count { font-size: 12px; color: #888; }
     table { width: 100%; border-collapse: collapse; }
     th { background: #3a7d44; color: #fff; text-align: left; padding: 10px 12px; font-size: 13px; }
-    td { padding: 9px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; }
+    td { padding: 7px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f2f7f2; }
+    tr:not(.editing):hover td { background: #f2f7f2; }
     .code-cell { font-family: monospace; font-weight: bold; font-size: 14px; color: #3a7d44; letter-spacing: 0.05em; }
-    .btn-delete { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 3px; }
+
+    td input.edit-input {
+      padding: 5px 8px; border: 1px solid #3a7d44; border-radius: 3px;
+      font-size: 13px; font-family: inherit; width: 100%;
+      box-shadow: 0 0 0 2px rgba(58,125,68,0.15);
+    }
+    td input.edit-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(58,125,68,0.3); }
+
+    .actions { display: flex; gap: 4px; justify-content: flex-end; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 13px; padding: 3px 7px; border-radius: 3px; white-space: nowrap; }
+    .btn-edit   { color: #3a7d44; }
+    .btn-edit:hover { background: #e8f5e9; }
+    .btn-save   { color: #fff; background: #3a7d44; font-weight: bold; }
+    .btn-save:hover { background: #2e6336; }
+    .btn-cancel { color: #888; border: 1px solid #ddd; }
+    .btn-cancel:hover { background: #f0f0f0; }
+    .btn-delete { color: #bbb; }
     .btn-delete:hover { color: #c0392b; background: #fdecea; }
   </style>
 </head>
@@ -77,12 +93,12 @@
       <h2>Add Product Type</h2>
       <form id="add-form">
         <div class="form-row">
-          <div class="form-field code">
+          <div class="form-field f-code">
             <label for="code">Code</label>
             <input type="text" id="code" placeholder="e.g. 01" maxlength="2" required>
             <span class="hint">2 digits</span>
           </div>
-          <div class="form-field desc">
+          <div class="form-field f-desc">
             <label for="description">Description</label>
             <input type="text" id="description" placeholder="e.g. Base Cabinet" required>
           </div>
@@ -102,7 +118,7 @@
           <tr>
             <th style="width:90px">Code</th>
             <th>Description</th>
-            <th style="width:40px"></th>
+            <th style="width:110px"></th>
           </tr>
         </thead>
         <tbody id="records-body">
@@ -133,26 +149,90 @@
         tbody.innerHTML = '<tr><td colspan="3" style="color:#888;font-style:italic;padding:12px">No product types yet.</td></tr>';
         return;
       }
-      tbody.innerHTML = records.map(r => `
-        <tr>
-          <td class="code-cell">${esc(r.code)}</td>
-          <td>${esc(r.description)}</td>
-          <td><button class="btn-delete" data-id="${r._id}" title="Delete">&#x2715;</button></td>
-        </tr>
-      `).join('');
-      tbody.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', () => deleteRecord(btn.dataset.id, btn.closest('tr').querySelector('td').textContent.trim()));
-      });
+      tbody.innerHTML = records.map(r => viewRow(r)).join('');
+      attachRowListeners();
     }
 
-    async function deleteRecord(id, code) {
-      if (!confirm(`Delete product type "${code}"?`)) return;
-      try {
-        await fetch(`/api/product-types/${id}`, { method: 'DELETE' });
-        loadRecords();
-      } catch {
-        alert('Failed to delete.');
-      }
+    function viewRow(r) {
+      return `
+        <tr data-id="${r._id}" data-code="${esc(r.code)}" data-description="${esc(r.description)}">
+          <td class="code-cell">${esc(r.code)}</td>
+          <td>${esc(r.description)}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-icon btn-edit" data-action="edit" title="Edit">Edit</button>
+              <button class="btn-icon btn-delete" data-action="delete" title="Delete">&#x2715;</button>
+            </div>
+          </td>
+        </tr>`;
+    }
+
+    function editRow(tr) {
+      const id   = tr.dataset.id;
+      const code = tr.dataset.code;
+      const desc = tr.dataset.description;
+      tr.classList.add('editing');
+      tr.innerHTML = `
+        <td><input class="edit-input" data-field="code" type="text" value="${code}" maxlength="2" style="width:66px"></td>
+        <td><input class="edit-input" data-field="description" type="text" value="${desc}"></td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon btn-save"   data-action="save"   data-id="${id}">Save</button>
+            <button class="btn-icon btn-cancel" data-action="cancel">Cancel</button>
+          </div>
+        </td>`;
+      tr.querySelector('[data-field="description"]').focus();
+    }
+
+    function attachRowListeners() {
+      tbody.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const tr     = btn.closest('tr');
+          const action = btn.dataset.action;
+
+          if (action === 'edit') {
+            editRow(tr);
+            attachRowListeners();
+
+          } else if (action === 'cancel') {
+            loadRecords();
+
+          } else if (action === 'save') {
+            const id   = btn.dataset.id;
+            const code = tr.querySelector('[data-field="code"]').value.trim();
+            const desc = tr.querySelector('[data-field="description"]').value.trim();
+
+            if (!/^\d{2}$/.test(code)) {
+              alert('Code must be exactly 2 digits.');
+              return;
+            }
+            if (!desc) { alert('Description is required.'); return; }
+
+            try {
+              const res = await fetch(`/api/product-types/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, description: desc })
+              });
+              const data = await res.json();
+              if (!res.ok) { alert(data.error || 'Failed to save.'); return; }
+              loadRecords();
+            } catch {
+              alert('Network error — could not save.');
+            }
+
+          } else if (action === 'delete') {
+            const code = tr.dataset.code;
+            if (!confirm(`Delete product type "${code}"?`)) return;
+            try {
+              await fetch(`/api/product-types/${tr.dataset.id}`, { method: 'DELETE' });
+              loadRecords();
+            } catch {
+              alert('Failed to delete.');
+            }
+          }
+        });
+      });
     }
 
     document.getElementById('add-form').addEventListener('submit', async function(e) {
