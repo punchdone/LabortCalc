@@ -166,6 +166,18 @@
                 <input type="checkbox" id="finInt">
                 <label for="finInt">Finished Interior</label>
               </div>
+              <div class="checkbox-field">
+                <input type="checkbox" id="faceFrame">
+                <label for="faceFrame">Face Frame</label>
+              </div>
+              <div class="checkbox-field">
+                <input type="checkbox" id="multiFace">
+                <label for="multiFace">Multi-Face</label>
+              </div>
+              <div class="checkbox-field">
+                <input type="checkbox" id="angled">
+                <label for="angled">Angled</label>
+              </div>
             </div>
           </fieldset>
           <div class="dim-wrap">
@@ -243,6 +255,9 @@
             <th rowspan="2" class="center">Shelf Qty</th>
             <th rowspan="2" class="center">Partition Qty</th>
             <th rowspan="2" class="center">Fin. Int.</th>
+            <th rowspan="2" class="center">Face Frame</th>
+            <th rowspan="2" class="center">Multi-Face</th>
+            <th rowspan="2" class="center">Angled</th>
             <th rowspan="2" style="width:36px"></th>
           </tr>
           <tr>
@@ -252,7 +267,7 @@
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="21" id="table-status">Loading...</td></tr>
+          <tr><td colspan="24" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -329,12 +344,12 @@
     }
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="21" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="24" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
         renderTable(await res.json());
       } catch {
-        tbody.innerHTML = '<tr><td colspan="21" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="24" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
@@ -343,7 +358,7 @@
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="21" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="24" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
@@ -367,7 +382,10 @@
           <td class="center">${r.lowerDrawerQty}</td>
           <td class="center">${r.shelfQty}</td>
           <td class="center">${r.partitionQty}</td>
-          <td class="center"><span class="badge ${r.finInt ? 'yes' : 'no'}">${r.finInt ? 'Yes' : 'No'}</span></td>
+          <td class="center"><span class="badge ${r.finInt    ? 'yes' : 'no'}">${r.finInt    ? 'Yes' : 'No'}</span></td>
+          <td class="center"><span class="badge ${r.faceFrame ? 'yes' : 'no'}">${r.faceFrame ? 'Yes' : 'No'}</span></td>
+          <td class="center"><span class="badge ${r.multiFace ? 'yes' : 'no'}">${r.multiFace ? 'Yes' : 'No'}</span></td>
+          <td class="center"><span class="badge ${r.angled    ? 'yes' : 'no'}">${r.angled    ? 'Yes' : 'No'}</span></td>
           <td><button class="btn-delete" title="Delete" data-id="${r._id}">&#x2715;</button></td>
         </tr>
       `).join('');
@@ -405,6 +423,9 @@
       const shelfQty       = document.getElementById('shelfQty').value;
       const partitionQty   = document.getElementById('partitionQty').value;
       const finInt         = document.getElementById('finInt').checked;
+      const faceFrame      = document.getElementById('faceFrame').checked;
+      const multiFace      = document.getElementById('multiFace').checked;
+      const angled         = document.getElementById('angled').checked;
 
       msgEl.className = 'form-msg';
       msgEl.textContent = '';
@@ -415,7 +436,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ configuration, configCode, productLine, type,
             widthMin, widthMax, widthStd, heightMin, heightMax, heightStd,
-            depthMin, depthMax, depthStd, doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty, finInt,
+            depthMin, depthMax, depthStd, doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
+            finInt, faceFrame, multiFace, angled,
             image: uploadedImagePath || undefined })
         });
         const data = await res.json();
