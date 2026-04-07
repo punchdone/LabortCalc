@@ -58,10 +58,25 @@
     th { background: #3a7d44; color: #fff; text-align: left; padding: 10px 12px; font-size: 13px; }
     td { padding: 9px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f2f7f2; }
     td.qty { text-align: right; }
     th.qty { text-align: right; }
-    .btn-delete { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 3px; line-height: 1; }
+    tr:not(.editing):hover td { background: #f2f7f2; }
+    tr.editing td { background: #f9fcf9; }
+    td input.edit-input, td select.edit-input {
+      padding: 5px 8px; border: 1px solid #3a7d44; border-radius: 3px;
+      font-size: 13px; font-family: inherit; width: 100%; background: #fff;
+      box-shadow: 0 0 0 2px rgba(58,125,68,0.15);
+    }
+    td input.edit-input:focus, td select.edit-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(58,125,68,0.3); }
+    .actions { display: flex; gap: 4px; justify-content: flex-end; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 13px; padding: 3px 7px; border-radius: 3px; white-space: nowrap; }
+    .btn-edit   { color: #3a7d44; }
+    .btn-edit:hover { background: #e8f5e9; }
+    .btn-save   { color: #fff; background: #3a7d44; font-weight: bold; }
+    .btn-save:hover { background: #2e6336; }
+    .btn-cancel { color: #888; border: 1px solid #ddd; }
+    .btn-cancel:hover { background: #f0f0f0; }
+    .btn-delete { color: #bbb; }
     .btn-delete:hover { color: #c0392b; background: #fdecea; }
     #table-status { padding: 16px 12px; color: #888; font-style: italic; font-size: 13px; }
   </style>
@@ -123,8 +138,8 @@
             <th>Work Center</th>
             <th>Activity Driver</th>
             <th>Qualifier</th>
-            <th class="qty">Quantity</th>
-            <th style="width:40px"></th>
+            <th class="qty" style="width:90px">Quantity</th>
+            <th style="width:130px"></th>
           </tr>
         </thead>
         <tbody id="records-body">
@@ -140,68 +155,149 @@
     const msgEl = document.getElementById('form-msg');
     const wcSelect = document.getElementById('workCenter');
 
+    let workCenters = [];
+
     async function loadWorkCenters() {
       try {
         const res = await fetch('/api/work-centers');
-        const wcs = await res.json();
+        workCenters = await res.json();
         wcSelect.innerHTML = '<option value="">— Select Work Center —</option>' +
-          wcs.map(wc => `<option value="${esc(wc.title)}">${esc(wc.code)} — ${esc(wc.title)}</option>`).join('');
+          workCenters.map(wc => `<option value="${esc(wc.title)}">${esc(wc.code)} — ${esc(wc.title)}</option>`).join('');
       } catch {
         wcSelect.innerHTML = '<option value="">Failed to load</option>';
       }
     }
 
+    function wcOptions(selected) {
+      return '<option value="">— Select —</option>' +
+        workCenters.map(wc =>
+          `<option value="${esc(wc.title)}" ${wc.title === selected ? 'selected' : ''}>${esc(wc.code)} — ${esc(wc.title)}</option>`
+        ).join('');
+    }
+
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="4" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/activity-drivers');
         const records = await res.json();
         renderTable(records);
       } catch {
-        tbody.innerHTML = '<tr><td colspan="4" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="4" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" id="table-status">No entries yet.</td></tr>';
         return;
       }
-      tbody.innerHTML = records.map(r => `
-        <tr>
-          <td>${esc(r.workCenter)}</td>
-          <td>${esc(r.activityDriver)}</td>
-          <td>${esc(r.qualifier)}</td>
-          <td class="qty">${r.quantity}</td>
-          <td><button class="btn-delete" title="Delete" data-id="${r._id}">&#x2715;</button></td>
-        </tr>
-      `).join('');
-
-      tbody.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', () => deleteRecord(btn.dataset.id));
-      });
+      tbody.innerHTML = records.map(r => viewRow(r)).join('');
+      attachRowListeners();
     }
 
-    async function deleteRecord(id) {
-      if (!confirm('Delete this entry?')) return;
-      try {
-        await fetch(`/api/activity-drivers/${id}`, { method: 'DELETE' });
-        loadRecords();
-      } catch {
-        alert('Failed to delete entry.');
-      }
+    function viewRow(r) {
+      return `<tr
+        data-id="${r._id}"
+        data-workcenter="${esc(r.workCenter)}"
+        data-activitydriver="${esc(r.activityDriver)}"
+        data-qualifier="${esc(r.qualifier ?? '')}"
+        data-quantity="${r.quantity}">
+        <td>${esc(r.workCenter)}</td>
+        <td>${esc(r.activityDriver)}</td>
+        <td>${esc(r.qualifier ?? '')}</td>
+        <td class="qty">${r.quantity}</td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon btn-edit" data-action="edit">Edit</button>
+            <button class="btn-icon btn-delete" data-action="delete">&#x2715;</button>
+          </div>
+        </td>
+      </tr>`;
+    }
+
+    function editRow(tr) {
+      tr.classList.add('editing');
+      const id = tr.dataset.id;
+      tr.innerHTML = `
+        <td><select class="edit-input" data-field="workCenter">${wcOptions(tr.dataset.workcenter)}</select></td>
+        <td><input class="edit-input" data-field="activityDriver" type="text" value="${tr.dataset.activitydriver}"></td>
+        <td><input class="edit-input" data-field="qualifier" type="text" value="${tr.dataset.qualifier}"></td>
+        <td><input class="edit-input" data-field="quantity" type="number" step="any" value="${tr.dataset.quantity}" style="width:80px"></td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon btn-save" data-action="save" data-id="${id}">Save</button>
+            <button class="btn-icon btn-cancel" data-action="cancel">Cancel</button>
+          </div>
+        </td>`;
+      tr.querySelector('[data-field="activityDriver"]').focus();
+    }
+
+    function attachRowListeners() {
+      tbody.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const tr = btn.closest('tr');
+          const action = btn.dataset.action;
+
+          if (action === 'edit') {
+            editRow(tr);
+            attachRowListeners();
+
+          } else if (action === 'cancel') {
+            loadRecords();
+
+          } else if (action === 'save') {
+            const id           = btn.dataset.id;
+            const workCenter   = tr.querySelector('[data-field="workCenter"]').value;
+            const activityDriver = tr.querySelector('[data-field="activityDriver"]').value.trim();
+            const qualifier    = tr.querySelector('[data-field="qualifier"]').value.trim();
+            const quantity     = tr.querySelector('[data-field="quantity"]').value;
+
+            if (!workCenter)     { alert('Work Center is required.'); return; }
+            if (!activityDriver) { alert('Activity Driver is required.'); return; }
+            if (quantity === '') { alert('Quantity is required.'); return; }
+
+            try {
+              const res = await fetch(`/api/activity-drivers/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ workCenter, activityDriver, qualifier, quantity })
+              });
+              const data = await res.json();
+              if (!res.ok) { alert(data.error || 'Failed to save.'); return; }
+              loadRecords();
+            } catch {
+              alert('Network error — could not save.');
+            }
+
+          } else if (action === 'delete') {
+            if (!confirm('Delete this entry?')) return;
+            try {
+              await fetch(`/api/activity-drivers/${tr.dataset.id}`, { method: 'DELETE' });
+              loadRecords();
+            } catch {
+              alert('Failed to delete entry.');
+            }
+          }
+        });
+      });
     }
 
     document.getElementById('add-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const workCenter     = document.getElementById('workCenter').value.trim();
+      const workCenter     = document.getElementById('workCenter').value;
       const activityDriver = document.getElementById('activityDriver').value.trim();
       const qualifier      = document.getElementById('qualifier').value.trim();
       const quantity       = document.getElementById('quantity').value;
 
       msgEl.className = 'form-msg';
       msgEl.textContent = '';
+
+      if (!workCenter) {
+        msgEl.className = 'form-msg error';
+        msgEl.textContent = 'Please select a Work Center.';
+        return;
+      }
 
       try {
         const res = await fetch('/api/activity-drivers', {
@@ -218,6 +314,8 @@
         msgEl.className = 'form-msg success';
         msgEl.textContent = 'Entry added.';
         this.reset();
+        // restore placeholder after reset clears the select
+        wcSelect.value = '';
         loadRecords();
         setTimeout(() => msgEl.textContent = '', 3000);
       } catch {

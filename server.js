@@ -584,6 +584,22 @@ app.post('/api/activity-drivers', async (req, res) => {
   }
 });
 
+app.patch('/api/activity-drivers/:id', async (req, res) => {
+  const { workCenter, activityDriver, qualifier, quantity } = req.body;
+  try {
+    const update = {};
+    if (workCenter     !== undefined) update.workCenter     = workCenter;
+    if (activityDriver !== undefined) update.activityDriver = activityDriver;
+    if (qualifier      !== undefined) update.qualifier      = qualifier;
+    if (quantity       !== undefined) update.quantity       = Number(quantity);
+    const record = await ActivityDriver.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!record) return res.status(404).json({ error: 'Not found.' });
+    res.json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.delete('/api/activity-drivers/:id', async (req, res) => {
   try {
     await ActivityDriver.findByIdAndDelete(req.params.id);
