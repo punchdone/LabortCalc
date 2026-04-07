@@ -35,8 +35,8 @@
     .form-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
     .form-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
     .form-field label { font-size: 13px; font-weight: bold; color: #444; }
-    .form-field input { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; }
-    .form-field input:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
+    .form-field input, .form-field select { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; background: #fff; }
+    .form-field input:focus, .form-field select:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
     .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; }
     .btn-submit:hover { background: #2e6336; }
     .form-msg { margin-top: 12px; font-size: 13px; min-height: 18px; }
@@ -90,7 +90,9 @@
         <div class="form-row">
           <div class="form-field">
             <label for="workCenter">Work Center</label>
-            <input type="text" id="workCenter" placeholder="e.g. Assembly" required>
+            <select id="workCenter" required>
+              <option value="">Loading...</option>
+            </select>
           </div>
           <div class="form-field">
             <label for="activityDriver">Activity Driver</label>
@@ -136,6 +138,18 @@
     const tbody = document.getElementById('records-body');
     const countEl = document.getElementById('record-count');
     const msgEl = document.getElementById('form-msg');
+    const wcSelect = document.getElementById('workCenter');
+
+    async function loadWorkCenters() {
+      try {
+        const res = await fetch('/api/work-centers');
+        const wcs = await res.json();
+        wcSelect.innerHTML = '<option value="">— Select Work Center —</option>' +
+          wcs.map(wc => `<option value="${esc(wc.title)}">${esc(wc.code)} — ${esc(wc.title)}</option>`).join('');
+      } catch {
+        wcSelect.innerHTML = '<option value="">Failed to load</option>';
+      }
+    }
 
     async function loadRecords() {
       tbody.innerHTML = '<tr><td colspan="4" id="table-status">Loading...</td></tr>';
@@ -216,6 +230,7 @@
       return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    loadWorkCenters();
     loadRecords();
   </script>
 </body>
