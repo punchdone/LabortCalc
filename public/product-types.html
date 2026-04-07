@@ -96,7 +96,7 @@
           <div class="form-field f-code">
             <label for="code">Code</label>
             <input type="text" id="code" placeholder="e.g. 01" maxlength="2" required>
-            <span class="hint">2 digits</span>
+            <span class="hint">2 alphanumeric</span>
           </div>
           <div class="form-field f-desc">
             <label for="description">Description</label>
@@ -202,8 +202,8 @@
             const code = tr.querySelector('[data-field="code"]').value.trim();
             const desc = tr.querySelector('[data-field="description"]').value.trim();
 
-            if (!/^\d{2}$/.test(code)) {
-              alert('Code must be exactly 2 digits.');
+            if (!/^[a-zA-Z0-9]{2}$/.test(code)) {
+              alert('Code must be exactly 2 alphanumeric.');
               return;
             }
             if (!desc) { alert('Description is required.'); return; }
@@ -243,9 +243,9 @@
       msgEl.className = 'form-msg';
       msgEl.textContent = '';
 
-      if (!/^\d{2}$/.test(code)) {
+      if (!/^[a-zA-Z0-9]{2}$/.test(code)) {
         msgEl.className = 'form-msg error';
-        msgEl.textContent = 'Code must be exactly 2 digits.';
+        msgEl.textContent = 'Code must be exactly 2 alphanumeric.';
         return;
       }
 

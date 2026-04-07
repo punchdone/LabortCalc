@@ -44,7 +44,7 @@ const workCenterSchema = new mongoose.Schema({
 const WorkCenter = mongoose.model('WorkCenter', workCenterSchema);
 
 const productTypeSchema = new mongoose.Schema({
-  code:        { type: String, required: true, unique: true, trim: true, match: /^\d{2}$/ },
+  code:        { type: String, required: true, unique: true, trim: true, match: /^[a-zA-Z0-9]{2}$/ },
   description: { type: String, required: true, trim: true }
 }, { timestamps: true });
 const ProductType = mongoose.model('ProductType', productTypeSchema);
@@ -184,7 +184,7 @@ app.get('/api/product-types', async (req, res) => {
 app.post('/api/product-types', async (req, res) => {
   const { code, description } = req.body;
   if (!code || !description) return res.status(400).json({ error: 'Code and description are required.' });
-  if (!/^\d{2}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 2 digits.' });
+  if (!/^[a-zA-Z0-9]{2}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 2 digits.' });
   try {
     const exists = await ProductType.findOne({ code });
     if (exists) return res.status(409).json({ error: `Product type code "${code}" already exists.` });
