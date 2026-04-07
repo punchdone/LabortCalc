@@ -137,8 +137,25 @@
           </div>
         </div>
 
-        <!-- Row 2: dimensions + door/drawer/finInt -->
+        <!-- Row 2: details box + dimensions -->
         <div class="form-row">
+          <fieldset style="border:none;padding:0;margin:0;">
+            <div class="details-box">
+              <legend>Details</legend>
+              <div class="form-field narrow">
+                <label for="doorQty">Door Qty</label>
+                <input type="number" id="doorQty" value="0" min="0" step="1">
+              </div>
+              <div class="form-field narrow">
+                <label for="drawerQty">Drawer Qty</label>
+                <input type="number" id="drawerQty" value="0" min="0" step="1">
+              </div>
+              <div class="checkbox-field">
+                <input type="checkbox" id="finInt">
+                <label for="finInt">Finished Interior</label>
+              </div>
+            </div>
+          </fieldset>
           <div class="dim-wrap">
             <label>Dimensions</label>
             <table class="dim-grid">
@@ -172,23 +189,6 @@
               </tbody>
             </table>
           </div>
-          <fieldset style="border:none;padding:0;margin:0;">
-            <div class="details-box">
-              <legend>Details</legend>
-              <div class="form-field narrow">
-                <label for="doorQty">Door Qty</label>
-                <input type="number" id="doorQty" value="0" min="0" step="1">
-              </div>
-              <div class="form-field narrow">
-                <label for="drawerQty">Drawer Qty</label>
-                <input type="number" id="drawerQty" value="0" min="0" step="1">
-              </div>
-              <div class="checkbox-field">
-                <input type="checkbox" id="finInt">
-                <label for="finInt">Finished Interior</label>
-              </div>
-            </div>
-          </fieldset>
         </div>
 
         <!-- Row 3: image picker + submit -->
