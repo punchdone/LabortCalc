@@ -42,6 +42,12 @@ const workCenterSchema = new mongoose.Schema({
 }, { timestamps: true });
 const WorkCenter = mongoose.model('WorkCenter', workCenterSchema);
 
+const productTypeSchema = new mongoose.Schema({
+  code:        { type: String, required: true, unique: true, trim: true, match: /^\d{2}$/ },
+  description: { type: String, required: true, trim: true }
+}, { timestamps: true });
+const ProductType = mongoose.model('ProductType', productTypeSchema);
+
 const catalogueSchema = new mongoose.Schema({
   configuration: { type: String, required: true, trim: true },
   description:   { type: String, trim: true },
@@ -157,6 +163,44 @@ app.get('/catalogue', requireAuth, (req, res) => {
 // Settings page
 app.get('/settings', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'settings.html'));
+});
+
+// Product Types page
+app.get('/product-types', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'product-types.html'));
+});
+
+// Product Types API
+app.get('/api/product-types', async (req, res) => {
+  try {
+    const records = await ProductType.find().sort({ code: 1 });
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/product-types', async (req, res) => {
+  const { code, description } = req.body;
+  if (!code || !description) return res.status(400).json({ error: 'Code and description are required.' });
+  if (!/^\d{2}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 2 digits.' });
+  try {
+    const exists = await ProductType.findOne({ code });
+    if (exists) return res.status(409).json({ error: `Product type code "${code}" already exists.` });
+    const record = await ProductType.create({ code, description });
+    res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/product-types/:id', async (req, res) => {
+  try {
+    await ProductType.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Work Centers page
