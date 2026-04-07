@@ -106,11 +106,7 @@
             </select>
           </div>
           <div class="form-field">
-            <label for="configuration">Configuration</label>
-            <input type="text" id="configuration" placeholder="e.g. Base Cabinet 24W" required>
-          </div>
-          <div class="form-field">
-            <label for="type">Type</label>
+            <label for="type">Product Type</label>
             <select id="type">
               <option value="">Loading...</option>
             </select>
@@ -119,6 +115,10 @@
             <label for="configCode">Config Code</label>
             <input type="text" id="configCode" placeholder="e.g. BC24W" maxlength="5">
             <span style="font-size:11px;color:#999">Up to 5 alphanumeric</span>
+          </div>
+          <div class="form-field">
+            <label for="configuration">Configuration Description</label>
+            <input type="text" id="configuration" placeholder="e.g. Base Cabinet 24W" required>
           </div>
           <div class="form-field">
             <label for="description">Description</label>
@@ -194,9 +194,9 @@
         <thead>
           <tr>
             <th rowspan="2">Product Line</th>
-            <th rowspan="2">Configuration</th>
-            <th rowspan="2">Type</th>
+            <th rowspan="2">Product Type</th>
             <th rowspan="2">Config Code</th>
+            <th rowspan="2">Config Description</th>
             <th rowspan="2">Description</th>
             <th colspan="3" class="center dim-group">Width</th>
             <th colspan="3" class="center dim-group">Height</th>
@@ -265,9 +265,9 @@
       tbody.innerHTML = records.map(r => `
         <tr>
           <td>${esc(r.productLine)}</td>
-          <td>${esc(r.configuration)}</td>
           <td>${esc(r.type)}</td>
           <td style="font-family:monospace">${esc(r.configCode ?? '')}</td>
+          <td>${esc(r.configuration)}</td>
           <td>${esc(r.description)}</td>
           <td class="dim-cell dim-first center">${dim(r.widthMin)}</td>
           <td class="dim-cell center">${dim(r.widthMax)}</td>
