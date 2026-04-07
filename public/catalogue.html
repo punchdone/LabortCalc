@@ -220,7 +220,18 @@
           </div>
         </div>
 
-        <!-- Row 3: notes -->
+        <!-- Row 4: price + notes -->
+        <div class="form-row">
+          <div class="form-field narrow">
+            <label for="price">Price</label>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <span style="font-size:14px; color:#444;">$</span>
+              <input type="number" id="price" placeholder="0.00" step="0.01" min="0" style="width:120px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 5: notes -->
         <div class="form-row">
           <div class="form-field">
             <label for="notes">Notes</label>
@@ -271,6 +282,7 @@
             <th rowspan="2" class="center">Face Frame</th>
             <th rowspan="2" class="center">Multi-Face</th>
             <th rowspan="2" class="center">Angled</th>
+            <th rowspan="2">Price</th>
             <th rowspan="2">Notes</th>
             <th rowspan="2" style="width:36px"></th>
           </tr>
@@ -281,7 +293,7 @@
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="25" id="table-status">Loading...</td></tr>
+          <tr><td colspan="26" id="table-status">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -358,12 +370,12 @@
     }
 
     async function loadRecords() {
-      tbody.innerHTML = '<tr><td colspan="25" id="table-status">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="26" id="table-status">Loading...</td></tr>';
       try {
         const res = await fetch('/api/catalogue');
         renderTable(await res.json());
       } catch {
-        tbody.innerHTML = '<tr><td colspan="25" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="26" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
@@ -372,7 +384,7 @@
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} record${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="25" id="table-status">No entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="26" id="table-status">No entries yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => `
@@ -400,6 +412,7 @@
           <td class="center"><span class="badge ${r.faceFrame ? 'yes' : 'no'}">${r.faceFrame ? 'Yes' : 'No'}</span></td>
           <td class="center"><span class="badge ${r.multiFace ? 'yes' : 'no'}">${r.multiFace ? 'Yes' : 'No'}</span></td>
           <td class="center"><span class="badge ${r.angled    ? 'yes' : 'no'}">${r.angled    ? 'Yes' : 'No'}</span></td>
+          <td>${r.price != null ? '$' + Number(r.price).toFixed(2) : ''}</td>
           <td style="max-width:200px; white-space:normal;">${esc(r.notes ?? '')}</td>
           <td><button class="btn-delete" title="Delete" data-id="${r._id}">&#x2715;</button></td>
         </tr>
@@ -441,6 +454,7 @@
       const faceFrame      = document.getElementById('faceFrame').checked;
       const multiFace      = document.getElementById('multiFace').checked;
       const angled         = document.getElementById('angled').checked;
+      const price          = document.getElementById('price').value;
       const notes          = document.getElementById('notes').value.trim();
 
       msgEl.className = 'form-msg';
@@ -453,7 +467,7 @@
           body: JSON.stringify({ configuration, configCode, productLine, type,
             widthMin, widthMax, widthStd, heightMin, heightMax, heightStd,
             depthMin, depthMax, depthStd, doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
-            finInt, faceFrame, multiFace, angled, notes,
+            finInt, faceFrame, multiFace, angled, price, notes,
             image: uploadedImagePath || undefined })
         });
         const data = await res.json();

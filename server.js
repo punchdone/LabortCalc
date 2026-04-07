@@ -106,6 +106,7 @@ const catalogueSchema = new mongoose.Schema({
   faceFrame:     { type: Boolean, default: false },
   multiFace:     { type: Boolean, default: false },
   angled:        { type: Boolean, default: false },
+  price:         { type: Number, default: null },
   notes:         { type: String, trim: true },
   image:         { type: String, trim: true }
 }, { timestamps: true });
@@ -578,7 +579,7 @@ app.post('/api/catalogue', async (req, res) => {
           heightMin, heightMax, heightStd,
           depthMin, depthMax, depthStd,
           doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
-          finInt, faceFrame, multiFace, angled, notes, image } = req.body;
+          finInt, faceFrame, multiFace, angled, price, notes, image } = req.body;
   if (!configuration) {
     return res.status(400).json({ error: 'configuration is required.' });
   }
@@ -605,6 +606,7 @@ app.post('/api/catalogue', async (req, res) => {
       faceFrame: Boolean(faceFrame),
       multiFace: Boolean(multiFace),
       angled:    Boolean(angled),
+      price:     (price !== '' && price != null) ? Number(price) : null,
       notes:     notes || undefined,
       image:     image || undefined
     });
