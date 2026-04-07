@@ -625,6 +625,54 @@ app.post('/api/catalogue', async (req, res) => {
   }
 });
 
+app.patch('/api/catalogue/:id', async (req, res) => {
+  const toNum = v => (v !== '' && v != null) ? Number(v) : null;
+  const {
+    configuration, configCode, productLine, type,
+    widthMin, widthMax, widthStd, heightMin, heightMax, heightStd, depthMin, depthMax, depthStd,
+    doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
+    buyOut, supplierName, supplierPartNo, supplierPrice,
+    finInt, faceFrame, multiFace, angled, price, notes, image
+  } = req.body;
+  try {
+    const u = {};
+    if (configuration  !== undefined) u.configuration  = configuration;
+    if (configCode     !== undefined) u.configCode     = configCode;
+    if (productLine    !== undefined) u.productLine    = productLine;
+    if (type           !== undefined) u.type           = type;
+    if (widthMin       !== undefined) u.widthMin       = toNum(widthMin);
+    if (widthMax       !== undefined) u.widthMax       = toNum(widthMax);
+    if (widthStd       !== undefined) u.widthStd       = toNum(widthStd);
+    if (heightMin      !== undefined) u.heightMin      = toNum(heightMin);
+    if (heightMax      !== undefined) u.heightMax      = toNum(heightMax);
+    if (heightStd      !== undefined) u.heightStd      = toNum(heightStd);
+    if (depthMin       !== undefined) u.depthMin       = toNum(depthMin);
+    if (depthMax       !== undefined) u.depthMax       = toNum(depthMax);
+    if (depthStd       !== undefined) u.depthStd       = toNum(depthStd);
+    if (doorQty        !== undefined) u.doorQty        = Number(doorQty ?? 0);
+    if (topDrawerQty   !== undefined) u.topDrawerQty   = Number(topDrawerQty ?? 0);
+    if (lowerDrawerQty !== undefined) u.lowerDrawerQty = Number(lowerDrawerQty ?? 0);
+    if (shelfQty       !== undefined) u.shelfQty       = Number(shelfQty ?? 0);
+    if (partitionQty   !== undefined) u.partitionQty   = Number(partitionQty ?? 0);
+    if (buyOut         !== undefined) u.buyOut         = Boolean(buyOut);
+    if (supplierName   !== undefined) u.supplierName   = supplierName;
+    if (supplierPartNo !== undefined) u.supplierPartNo = supplierPartNo;
+    if (supplierPrice  !== undefined) u.supplierPrice  = toNum(supplierPrice);
+    if (finInt         !== undefined) u.finInt         = Boolean(finInt);
+    if (faceFrame      !== undefined) u.faceFrame      = Boolean(faceFrame);
+    if (multiFace      !== undefined) u.multiFace      = Boolean(multiFace);
+    if (angled         !== undefined) u.angled         = Boolean(angled);
+    if (price          !== undefined) u.price          = toNum(price);
+    if (notes          !== undefined) u.notes          = notes;
+    if (image          !== undefined) u.image          = image;
+    const record = await Catalogue.findByIdAndUpdate(req.params.id, u, { new: true });
+    if (!record) return res.status(404).json({ error: 'Not found.' });
+    res.json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.delete('/api/catalogue/:id', async (req, res) => {
   try {
     await Catalogue.findByIdAndDelete(req.params.id);
