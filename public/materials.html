@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Materials — Rainier Woodworking</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f7f4; }
+    .page-content { max-width: 700px; margin: 32px auto; padding: 0 20px; }
+
+    nav { background: #1e421e; border-bottom: 2px solid #3a7d44; display: flex; align-items: center; padding: 0 28px; height: 52px; gap: 8px; }
+    .nav-brand { color: #c8e6c9; font-size: 15px; font-weight: bold; letter-spacing: 0.03em; margin-right: auto; text-decoration: none; }
+    .nav-brand:hover { color: #fff; }
+    .nav-link { color: #c8e6c9; text-decoration: none; font-size: 14px; padding: 6px 14px; border-radius: 4px; transition: background 0.15s; }
+    .nav-link:hover { background: rgba(58,125,68,0.6); color: #fff; }
+    .nav-link.active { background: #3a7d44; color: #fff; }
+    .nav-sep { width: 1px; height: 24px; background: rgba(200,230,201,0.2); }
+    .nav-signout { color: #a5c8a7; font-size: 13px; padding: 6px 12px; border-radius: 4px; cursor: pointer; background: none; border: none; font-family: inherit; }
+    .nav-signout:hover { background: rgba(200,80,80,0.25); color: #fff; }
+
+    .breadcrumb { font-size: 13px; color: #888; margin-bottom: 12px; }
+    .breadcrumb a { color: #3a7d44; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { color: #2a5c2a; margin: 0 0 24px 0; font-size: 22px; }
+
+    .form-card { background: #fff; border: 1px solid #cde0cd; border-radius: 8px; padding: 24px 28px; margin-bottom: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .form-card h2 { margin: 0 0 16px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
+    .form-row { display: flex; gap: 12px; align-items: flex-start; }
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+    .form-field.f-code { flex: 0 0 90px; }
+    .form-field.f-desc { flex: 1; }
+    .form-field label { font-size: 13px; font-weight: bold; color: #444; }
+    .form-field input { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; width: 100%; }
+    .form-field input:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
+    .hint { font-size: 12px; color: #888; }
+    .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; margin-top: 23px; }
+    .btn-submit:hover { background: #2e6336; }
+    .form-msg { margin-top: 12px; font-size: 13px; min-height: 18px; }
+    .form-msg.success { color: #2a7d3a; }
+    .form-msg.error   { color: #c0392b; }
+
+    .table-card { background: #fff; border: 1px solid #cde0cd; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 0; }
+    .section-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: #3a7d44; display: inline-block; padding: 3px 10px; border-radius: 4px 4px 0 0; }
+    #record-count { font-size: 12px; color: #888; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #3a7d44; color: #fff; text-align: left; padding: 10px 12px; font-size: 13px; }
+    td { padding: 7px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:not(.editing):hover td { background: #f2f7f2; }
+    .code-cell { font-family: monospace; font-weight: bold; font-size: 14px; color: #3a7d44; letter-spacing: 0.05em; }
+
+    td input.edit-input {
+      padding: 5px 8px; border: 1px solid #3a7d44; border-radius: 3px;
+      font-size: 13px; font-family: inherit; width: 100%;
+      box-shadow: 0 0 0 2px rgba(58,125,68,0.15);
+    }
+    td input.edit-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(58,125,68,0.3); }
+
+    .actions { display: flex; gap: 4px; justify-content: flex-end; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 13px; padding: 3px 7px; border-radius: 3px; white-space: nowrap; }
+    .btn-edit   { color: #3a7d44; }
+    .btn-edit:hover { background: #e8f5e9; }
+    .btn-save   { color: #fff; background: #3a7d44; font-weight: bold; }
+    .btn-save:hover { background: #2e6336; }
+    .btn-cancel { color: #888; border: 1px solid #ddd; }
+    .btn-cancel:hover { background: #f0f0f0; }
+    .btn-delete { color: #bbb; }
+    .btn-delete:hover { color: #c0392b; background: #fdecea; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="nav-brand">Rainier Woodworking</a>
+    <a href="/" class="nav-link">Home</a>
+    <a href="/laborcalc" class="nav-link">LaborCalc</a>
+    <a href="/activity-drivers" class="nav-link">Activity Drivers</a>
+    <a href="/catalogue" class="nav-link">Catalogue</a>
+    <a href="/register" class="nav-link">Users</a>
+    <a href="/settings" class="nav-link active">Settings</a>
+    <div class="nav-sep"></div>
+    <form method="POST" action="/auth/logout" style="margin:0">
+      <button type="submit" class="nav-signout">Sign Out</button>
+    </form>
+  </nav>
+
+  <div class="page-content">
+    <div class="breadcrumb"><a href="/settings">Settings</a> / Materials</div>
+    <h1>Materials</h1>
+
+    <div class="form-card">
+      <h2>Add Material</h2>
+      <form id="add-form">
+        <div class="form-row">
+          <div class="form-field f-code">
+            <label for="code">Code</label>
+            <input type="text" id="code" placeholder="e.g. M1" maxlength="2" required>
+            <span class="hint">2 alphanumeric</span>
+          </div>
+          <div class="form-field f-desc">
+            <label for="description">Description</label>
+            <input type="text" id="description" placeholder="e.g. Maple" required>
+          </div>
+          <button type="submit" class="btn-submit">Add</button>
+        </div>
+        <div class="form-msg" id="form-msg"></div>
+      </form>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <span class="section-title">Materials</span>
+        <span id="record-count"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:90px">Code</th>
+            <th>Description</th>
+            <th style="width:110px"></th>
+          </tr>
+        </thead>
+        <tbody id="records-body">
+          <tr><td colspan="3" style="color:#888;font-style:italic;padding:12px">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const tbody = document.getElementById('records-body');
+    const countEl = document.getElementById('record-count');
+    const msgEl = document.getElementById('form-msg');
+
+    async function loadRecords() {
+      try {
+        const res = await fetch('/api/materials');
+        const records = await res.json();
+        renderTable(records);
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="3" style="color:red;padding:12px">Failed to load records.</td></tr>';
+      }
+    }
+
+    function renderTable(records) {
+      countEl.textContent = records.length ? `${records.length} material${records.length !== 1 ? 's' : ''}` : '';
+      if (!records.length) {
+        tbody.innerHTML = '<tr><td colspan="3" style="color:#888;font-style:italic;padding:12px">No materials yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = records.map(r => viewRow(r)).join('');
+      attachRowListeners();
+    }
+
+    function viewRow(r) {
+      return `
+        <tr data-id="${r._id}" data-code="${esc(r.code)}" data-description="${esc(r.description)}">
+          <td class="code-cell">${esc(r.code)}</td>
+          <td>${esc(r.description)}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-icon btn-edit" data-action="edit" title="Edit">Edit</button>
+              <button class="btn-icon btn-delete" data-action="delete" title="Delete">&#x2715;</button>
+            </div>
+          </td>
+        </tr>`;
+    }
+
+    function editRow(tr) {
+      const id   = tr.dataset.id;
+      const code = tr.dataset.code;
+      const desc = tr.dataset.description;
+      tr.classList.add('editing');
+      tr.innerHTML = `
+        <td><input class="edit-input" data-field="code" type="text" value="${code}" maxlength="2" style="width:66px"></td>
+        <td><input class="edit-input" data-field="description" type="text" value="${desc}"></td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon btn-save"   data-action="save"   data-id="${id}">Save</button>
+            <button class="btn-icon btn-cancel" data-action="cancel">Cancel</button>
+          </div>
+        </td>`;
+      tr.querySelector('[data-field="description"]').focus();
+    }
+
+    function attachRowListeners() {
+      tbody.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const tr     = btn.closest('tr');
+          const action = btn.dataset.action;
+
+          if (action === 'edit') {
+            editRow(tr);
+            attachRowListeners();
+
+          } else if (action === 'cancel') {
+            loadRecords();
+
+          } else if (action === 'save') {
+            const id   = btn.dataset.id;
+            const code = tr.querySelector('[data-field="code"]').value.trim();
+            const desc = tr.querySelector('[data-field="description"]').value.trim();
+
+            if (!/^[a-zA-Z0-9]{2}$/.test(code)) {
+              alert('Code must be exactly 2 alphanumeric.');
+              return;
+            }
+            if (!desc) { alert('Description is required.'); return; }
+
+            try {
+              const res = await fetch(`/api/materials/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, description: desc })
+              });
+              const data = await res.json();
+              if (!res.ok) { alert(data.error || 'Failed to save.'); return; }
+              loadRecords();
+            } catch {
+              alert('Network error — could not save.');
+            }
+
+          } else if (action === 'delete') {
+            const code = tr.dataset.code;
+            if (!confirm(`Delete material "${code}"?`)) return;
+            try {
+              await fetch(`/api/materials/${tr.dataset.id}`, { method: 'DELETE' });
+              loadRecords();
+            } catch {
+              alert('Failed to delete.');
+            }
+          }
+        });
+      });
+    }
+
+    document.getElementById('add-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const code        = document.getElementById('code').value.trim();
+      const description = document.getElementById('description').value.trim();
+
+      msgEl.className = 'form-msg';
+      msgEl.textContent = '';
+
+      if (!/^[a-zA-Z0-9]{2}$/.test(code)) {
+        msgEl.className = 'form-msg error';
+        msgEl.textContent = 'Code must be exactly 2 alphanumeric.';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/materials', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, description })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          msgEl.className = 'form-msg error';
+          msgEl.textContent = data.error || 'Failed to save.';
+          return;
+        }
+        msgEl.className = 'form-msg success';
+        msgEl.textContent = `Material "${code}" added.`;
+        this.reset();
+        loadRecords();
+        setTimeout(() => msgEl.textContent = '', 3000);
+      } catch {
+        msgEl.className = 'form-msg error';
+        msgEl.textContent = 'Network error — could not save.';
+      }
+    });
+
+    function esc(str) {
+      return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    loadRecords();
+  </script>
+</body>
+</html>

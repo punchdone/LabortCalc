@@ -49,6 +49,24 @@ const productTypeSchema = new mongoose.Schema({
 }, { timestamps: true });
 const ProductType = mongoose.model('ProductType', productTypeSchema);
 
+const productLineSchema = new mongoose.Schema({
+  code:        { type: String, required: true, unique: true, trim: true, match: /^[a-zA-Z0-9]{2}$/ },
+  description: { type: String, required: true, trim: true }
+}, { timestamps: true });
+const ProductLine = mongoose.model('ProductLine', productLineSchema);
+
+const materialSchema = new mongoose.Schema({
+  code:        { type: String, required: true, unique: true, trim: true, match: /^[a-zA-Z0-9]{2}$/ },
+  description: { type: String, required: true, trim: true }
+}, { timestamps: true });
+const Material = mongoose.model('Material', materialSchema);
+
+const finishTypeSchema = new mongoose.Schema({
+  code:        { type: String, required: true, unique: true, trim: true, match: /^[a-zA-Z0-9]{2}$/ },
+  description: { type: String, required: true, trim: true }
+}, { timestamps: true });
+const FinishType = mongoose.model('FinishType', finishTypeSchema);
+
 const catalogueSchema = new mongoose.Schema({
   configuration: { type: String, required: true, trim: true },
   description:   { type: String, trim: true },
@@ -197,7 +215,7 @@ app.post('/api/product-types', async (req, res) => {
 
 app.patch('/api/product-types/:id', async (req, res) => {
   const { code, description } = req.body;
-  if (code && !/^\d{2}$/.test(code))
+  if (code && !/^[a-zA-Z0-9]{2}$/.test(code))
     return res.status(400).json({ error: 'Code must be exactly 2 alphanumeric characters.' });
   try {
     const update = {};
@@ -214,6 +232,168 @@ app.patch('/api/product-types/:id', async (req, res) => {
 app.delete('/api/product-types/:id', async (req, res) => {
   try {
     await ProductType.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Product Lines page
+app.get('/product-lines', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'product-lines.html'));
+});
+
+// Product Lines API
+app.get('/api/product-lines', async (req, res) => {
+  try {
+    const records = await ProductLine.find().sort({ code: 1 });
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/product-lines', async (req, res) => {
+  const { code, description } = req.body;
+  if (!code || !description) return res.status(400).json({ error: 'Code and description are required.' });
+  if (!/^[a-zA-Z0-9]{2}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 2 alphanumeric characters.' });
+  try {
+    const exists = await ProductLine.findOne({ code });
+    if (exists) return res.status(409).json({ error: `Product line code "${code}" already exists.` });
+    const record = await ProductLine.create({ code, description });
+    res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch('/api/product-lines/:id', async (req, res) => {
+  const { code, description } = req.body;
+  if (code && !/^[a-zA-Z0-9]{2}$/.test(code))
+    return res.status(400).json({ error: 'Code must be exactly 2 alphanumeric characters.' });
+  try {
+    const update = {};
+    if (code        !== undefined) update.code        = code;
+    if (description !== undefined) update.description = description;
+    const record = await ProductLine.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!record) return res.status(404).json({ error: 'Not found.' });
+    res.json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/product-lines/:id', async (req, res) => {
+  try {
+    await ProductLine.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Materials page
+app.get('/materials', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'materials.html'));
+});
+
+// Materials API
+app.get('/api/materials', async (req, res) => {
+  try {
+    const records = await Material.find().sort({ code: 1 });
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/materials', async (req, res) => {
+  const { code, description } = req.body;
+  if (!code || !description) return res.status(400).json({ error: 'Code and description are required.' });
+  if (!/^[a-zA-Z0-9]{2}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 2 alphanumeric characters.' });
+  try {
+    const exists = await Material.findOne({ code });
+    if (exists) return res.status(409).json({ error: `Material code "${code}" already exists.` });
+    const record = await Material.create({ code, description });
+    res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch('/api/materials/:id', async (req, res) => {
+  const { code, description } = req.body;
+  if (code && !/^[a-zA-Z0-9]{2}$/.test(code))
+    return res.status(400).json({ error: 'Code must be exactly 2 alphanumeric characters.' });
+  try {
+    const update = {};
+    if (code        !== undefined) update.code        = code;
+    if (description !== undefined) update.description = description;
+    const record = await Material.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!record) return res.status(404).json({ error: 'Not found.' });
+    res.json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/materials/:id', async (req, res) => {
+  try {
+    await Material.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Finish Types page
+app.get('/finish-types', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'finish-types.html'));
+});
+
+// Finish Types API
+app.get('/api/finish-types', async (req, res) => {
+  try {
+    const records = await FinishType.find().sort({ code: 1 });
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/finish-types', async (req, res) => {
+  const { code, description } = req.body;
+  if (!code || !description) return res.status(400).json({ error: 'Code and description are required.' });
+  if (!/^[a-zA-Z0-9]{2}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 2 alphanumeric characters.' });
+  try {
+    const exists = await FinishType.findOne({ code });
+    if (exists) return res.status(409).json({ error: `Finish type code "${code}" already exists.` });
+    const record = await FinishType.create({ code, description });
+    res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch('/api/finish-types/:id', async (req, res) => {
+  const { code, description } = req.body;
+  if (code && !/^[a-zA-Z0-9]{2}$/.test(code))
+    return res.status(400).json({ error: 'Code must be exactly 2 alphanumeric characters.' });
+  try {
+    const update = {};
+    if (code        !== undefined) update.code        = code;
+    if (description !== undefined) update.description = description;
+    const record = await FinishType.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!record) return res.status(404).json({ error: 'Not found.' });
+    res.json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/finish-types/:id', async (req, res) => {
+  try {
+    await FinishType.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
