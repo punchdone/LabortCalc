@@ -48,6 +48,7 @@
 
     /* Details box */
     .details-box { border: 1px solid #c8e0c8; border-radius: 6px; padding: 10px 14px 12px; background: #f5fbf5; display: flex; flex-direction: column; gap: 5px; }
+    .details-box .form-field { flex: none; }
     .details-box legend { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; padding: 3px 10px; border-radius: 4px; margin-bottom: 4px; display: inline-block; }
 
     .checkbox-field { display: flex; align-items: center; gap: 8px; }
@@ -112,7 +113,7 @@
       <h2>Add Entry</h2>
       <form id="add-form">
 
-        <!-- Row 1: dropdowns + text fields -->
+        <!-- Row 1: dropdowns -->
         <div class="form-row">
           <div class="form-field">
             <label for="productLine">Product Line</label>
@@ -126,6 +127,10 @@
               <option value="">Loading...</option>
             </select>
           </div>
+        </div>
+
+        <!-- Row 2: config code + config description -->
+        <div class="form-row">
           <div class="form-field narrow">
             <label for="configCode">Config Code</label>
             <input type="text" id="configCode" placeholder="e.g. BC24W" maxlength="5">
