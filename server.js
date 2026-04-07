@@ -523,7 +523,7 @@ app.get('/api/shipmentitems/:projectId/:workOrderId', async (req, res) => {
     allRecords.sort((a, b) => parseInt(a.EngineeringId, 10) - parseInt(b.EngineeringId, 10));
     console.log(`Shipment items for work order ${workOrderId}: ${allRecords.length} total`);
     const slim = allRecords.map(r => ({
-      Name:              r.Name || r.ItemName || r.name,
+      Name:              r.ShipmentItemName || r.Name || r.ItemName || r.name,
       Quantity:          Math.round((r.Quantity ?? r.Qty ?? r.quantity ?? r.qty ?? 0) * 1000) / 1000,
       Description:       r.Description || r.description,
       QuantityCompleted: Math.round((r.QuantityCompleted ?? 0) * 1000) / 1000,
