@@ -38,7 +38,8 @@ const ActivityDriver = mongoose.model('ActivityDriver', activityDriverSchema);
 
 const workCenterSchema = new mongoose.Schema({
   code:  { type: String, required: true, unique: true, trim: true, match: /^[a-zA-Z0-9]{3}$/ },
-  title: { type: String, required: true, trim: true }
+  title: { type: String, required: true, trim: true },
+  order: { type: Number, default: 0 }
 }, { timestamps: true });
 const WorkCenter = mongoose.model('WorkCenter', workCenterSchema);
 
@@ -211,7 +212,7 @@ app.get('/work-centers', requireAuth, (req, res) => {
 // Work Centers API
 app.get('/api/work-centers', async (req, res) => {
   try {
-    const records = await WorkCenter.find().sort({ code: 1 });
+    const records = await WorkCenter.find().sort({ order: 1, code: 1 });
     res.json(records);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -219,14 +220,31 @@ app.get('/api/work-centers', async (req, res) => {
 });
 
 app.post('/api/work-centers', async (req, res) => {
-  const { code, title } = req.body;
+  const { code, title, order } = req.body;
   if (!code || !title) return res.status(400).json({ error: 'Code and title are required.' });
   if (!/^[a-zA-Z0-9]{3}$/.test(code)) return res.status(400).json({ error: 'Code must be exactly 3 alphanumeric characters.' });
   try {
     const exists = await WorkCenter.findOne({ code });
     if (exists) return res.status(409).json({ error: `Work center code "${code}" already exists.` });
-    const record = await WorkCenter.create({ code, title });
+    const record = await WorkCenter.create({ code, title, order: Number(order ?? 0) });
     res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch('/api/work-centers/:id', async (req, res) => {
+  const { code, title, order } = req.body;
+  if (code && !/^[a-zA-Z0-9]{3}$/.test(code))
+    return res.status(400).json({ error: 'Code must be exactly 3 alphanumeric characters.' });
+  try {
+    const update = {};
+    if (code  !== undefined) update.code  = code;
+    if (title !== undefined) update.title = title;
+    if (order !== undefined) update.order = Number(order);
+    const record = await WorkCenter.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!record) return res.status(404).json({ error: 'Not found.' });
+    res.json(record);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

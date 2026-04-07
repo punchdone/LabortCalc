@@ -7,7 +7,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f7f4; }
-    .page-content { max-width: 700px; margin: 32px auto; padding: 0 20px; }
+    .page-content { max-width: 740px; margin: 32px auto; padding: 0 20px; }
 
     nav { background: #1e421e; border-bottom: 2px solid #3a7d44; display: flex; align-items: center; padding: 0 28px; height: 52px; gap: 8px; }
     .nav-brand { color: #c8e6c9; font-size: 15px; font-weight: bold; letter-spacing: 0.03em; margin-right: auto; text-decoration: none; }
@@ -24,21 +24,15 @@
     .breadcrumb a:hover { text-decoration: underline; }
     h1 { color: #2a5c2a; margin: 0 0 24px 0; font-size: 22px; }
 
-    .form-card {
-      background: #fff;
-      border: 1px solid #cde0cd;
-      border-radius: 8px;
-      padding: 24px 28px;
-      margin-bottom: 28px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
+    .form-card { background: #fff; border: 1px solid #cde0cd; border-radius: 8px; padding: 24px 28px; margin-bottom: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
     .form-card h2 { margin: 0 0 16px 0; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; background: #3a7d44; display: inline-block; padding: 4px 12px; border-radius: 4px; }
     .form-row { display: flex; gap: 12px; align-items: flex-start; }
     .form-field { display: flex; flex-direction: column; gap: 5px; }
-    .form-field.code  { flex: 0 0 100px; }
-    .form-field.title { flex: 1; }
+    .form-field.f-order { flex: 0 0 80px; }
+    .form-field.f-code  { flex: 0 0 100px; }
+    .form-field.f-title { flex: 1; }
     .form-field label { font-size: 13px; font-weight: bold; color: #444; }
-    .form-field input { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; }
+    .form-field input { padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: 14px; font-family: inherit; width: 100%; }
     .form-field input:focus { outline: none; border-color: #3a7d44; box-shadow: 0 0 0 2px rgba(58,125,68,0.2); }
     .hint { font-size: 12px; color: #888; }
     .btn-submit { padding: 8px 22px; background: #3a7d44; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-family: inherit; white-space: nowrap; margin-top: 23px; }
@@ -53,11 +47,29 @@
     #record-count { font-size: 12px; color: #888; }
     table { width: 100%; border-collapse: collapse; }
     th { background: #3a7d44; color: #fff; text-align: left; padding: 10px 12px; font-size: 13px; }
-    td { padding: 9px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; }
+    td { padding: 7px 12px; border-bottom: 1px solid #e8f0e8; font-size: 13px; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f2f7f2; }
+    tr:not(.editing):hover td { background: #f2f7f2; }
     .code-cell { font-family: monospace; font-weight: bold; font-size: 14px; color: #3a7d44; letter-spacing: 0.05em; }
-    .btn-delete { background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 3px; }
+    .order-cell { color: #888; text-align: center; }
+
+    /* Inline edit inputs */
+    td input.edit-input {
+      padding: 5px 8px; border: 1px solid #3a7d44; border-radius: 3px;
+      font-size: 13px; font-family: inherit; width: 100%;
+      box-shadow: 0 0 0 2px rgba(58,125,68,0.15);
+    }
+    td input.edit-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(58,125,68,0.3); }
+
+    .actions { display: flex; gap: 4px; justify-content: flex-end; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 13px; padding: 3px 7px; border-radius: 3px; white-space: nowrap; }
+    .btn-edit   { color: #3a7d44; }
+    .btn-edit:hover { background: #e8f5e9; }
+    .btn-save   { color: #fff; background: #3a7d44; font-weight: bold; }
+    .btn-save:hover { background: #2e6336; }
+    .btn-cancel { color: #888; border: 1px solid #ddd; }
+    .btn-cancel:hover { background: #f0f0f0; }
+    .btn-delete { color: #bbb; }
     .btn-delete:hover { color: #c0392b; background: #fdecea; }
   </style>
 </head>
@@ -84,12 +96,16 @@
       <h2>Add Work Center</h2>
       <form id="add-form">
         <div class="form-row">
-          <div class="form-field code">
+          <div class="form-field f-order">
+            <label for="order">Order</label>
+            <input type="number" id="order" placeholder="0" min="0" step="1" value="0">
+          </div>
+          <div class="form-field f-code">
             <label for="code">Code</label>
-            <input type="text" id="code" placeholder="e.g. 101" maxlength="3" required>
+            <input type="text" id="code" placeholder="e.g. A01" maxlength="3" required>
             <span class="hint">3 alphanumeric</span>
           </div>
-          <div class="form-field title">
+          <div class="form-field f-title">
             <label for="title">Title</label>
             <input type="text" id="title" placeholder="e.g. CNC Machining" required>
           </div>
@@ -107,13 +123,14 @@
       <table>
         <thead>
           <tr>
+            <th style="width:70px; text-align:center">Order</th>
             <th style="width:100px">Code</th>
             <th>Title</th>
-            <th style="width:40px"></th>
+            <th style="width:110px"></th>
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="3" style="color:#888;font-style:italic;padding:12px">Loading...</td></tr>
+          <tr><td colspan="4" style="color:#888;font-style:italic;padding:12px">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -130,40 +147,109 @@
         const records = await res.json();
         renderTable(records);
       } catch {
-        tbody.innerHTML = '<tr><td colspan="3" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} work center${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="3" style="color:#888;font-style:italic;padding:12px">No work centers yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="color:#888;font-style:italic;padding:12px">No work centers yet.</td></tr>';
         return;
       }
-      tbody.innerHTML = records.map(r => `
-        <tr>
-          <td class="code-cell">${esc(r.code)}</td>
-          <td>${esc(r.title)}</td>
-          <td><button class="btn-delete" data-id="${r._id}" title="Delete">&#x2715;</button></td>
-        </tr>
-      `).join('');
-      tbody.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', () => deleteRecord(btn.dataset.id, btn.closest('tr').querySelector('td').textContent.trim()));
-      });
+      tbody.innerHTML = records.map(r => viewRow(r)).join('');
+      attachRowListeners();
     }
 
-    async function deleteRecord(id, code) {
-      if (!confirm(`Delete work center "${code}"?`)) return;
-      try {
-        await fetch(`/api/work-centers/${id}`, { method: 'DELETE' });
-        loadRecords();
-      } catch {
-        alert('Failed to delete.');
-      }
+    function viewRow(r) {
+      return `
+        <tr data-id="${r._id}" data-order="${r.order ?? 0}" data-code="${esc(r.code)}" data-title="${esc(r.title)}">
+          <td class="order-cell">${r.order ?? 0}</td>
+          <td class="code-cell">${esc(r.code)}</td>
+          <td>${esc(r.title)}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-icon btn-edit" data-action="edit" title="Edit">Edit</button>
+              <button class="btn-icon btn-delete" data-action="delete" title="Delete">&#x2715;</button>
+            </div>
+          </td>
+        </tr>`;
+    }
+
+    function editRow(tr) {
+      const id    = tr.dataset.id;
+      const order = tr.dataset.order;
+      const code  = tr.dataset.code;
+      const title = tr.dataset.title;
+      tr.classList.add('editing');
+      tr.innerHTML = `
+        <td><input class="edit-input" data-field="order" type="number" value="${order}" min="0" style="width:56px"></td>
+        <td><input class="edit-input" data-field="code"  type="text"   value="${code}"  maxlength="3" style="width:72px"></td>
+        <td><input class="edit-input" data-field="title" type="text"   value="${title}"></td>
+        <td>
+          <div class="actions">
+            <button class="btn-icon btn-save"   data-action="save"   data-id="${id}">Save</button>
+            <button class="btn-icon btn-cancel" data-action="cancel">Cancel</button>
+          </div>
+        </td>`;
+      tr.querySelector('[data-field="title"]').focus();
+    }
+
+    function attachRowListeners() {
+      tbody.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const tr = btn.closest('tr');
+          const action = btn.dataset.action;
+
+          if (action === 'edit') {
+            editRow(tr);
+            attachRowListeners();
+
+          } else if (action === 'cancel') {
+            loadRecords();
+
+          } else if (action === 'save') {
+            const id    = btn.dataset.id;
+            const order = tr.querySelector('[data-field="order"]').value;
+            const code  = tr.querySelector('[data-field="code"]').value.trim();
+            const title = tr.querySelector('[data-field="title"]').value.trim();
+
+            if (!/^[a-zA-Z0-9]{3}$/.test(code)) {
+              alert('Code must be exactly 3 alphanumeric characters.');
+              return;
+            }
+            if (!title) { alert('Title is required.'); return; }
+
+            try {
+              const res = await fetch(`/api/work-centers/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order: Number(order), code, title })
+              });
+              const data = await res.json();
+              if (!res.ok) { alert(data.error || 'Failed to save.'); return; }
+              loadRecords();
+            } catch {
+              alert('Network error — could not save.');
+            }
+
+          } else if (action === 'delete') {
+            const code = tr.dataset.code;
+            if (!confirm(`Delete work center "${code}"?`)) return;
+            try {
+              await fetch(`/api/work-centers/${tr.dataset.id}`, { method: 'DELETE' });
+              loadRecords();
+            } catch {
+              alert('Failed to delete.');
+            }
+          }
+        });
+      });
     }
 
     document.getElementById('add-form').addEventListener('submit', async function(e) {
       e.preventDefault();
+      const order = document.getElementById('order').value;
       const code  = document.getElementById('code').value.trim();
       const title = document.getElementById('title').value.trim();
 
@@ -180,7 +266,7 @@
         const res = await fetch('/api/work-centers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, title })
+          body: JSON.stringify({ order: Number(order), code, title })
         });
         const data = await res.json();
         if (!res.ok) {
@@ -191,6 +277,7 @@
         msgEl.className = 'form-msg success';
         msgEl.textContent = `Work center "${code}" added.`;
         this.reset();
+        document.getElementById('order').value = '0';
         loadRecords();
         setTimeout(() => msgEl.textContent = '', 3000);
       } catch {
