@@ -152,12 +152,13 @@
 
     // --- Shipment Items ---
 
-    async function fetchShipmentItems(woId) {
-      if (siCache[woId]) return siCache[woId];
-      const res = await fetch(`/api/shipmentitems/${encodeURIComponent(woId)}`);
+    async function fetchShipmentItems(pid, woId) {
+      const key = `${pid}|${woId}`;
+      if (siCache[key]) return siCache[key];
+      const res = await fetch(`/api/shipmentitems/${encodeURIComponent(pid)}/${encodeURIComponent(woId)}`);
       const data = await res.json();
       const records = Array.isArray(data) ? data : [];
-      siCache[woId] = records;
+      siCache[key] = records;
       return records;
     }
 
@@ -173,7 +174,7 @@
       siDiv.appendChild(title);
       const table = document.createElement('table');
       const thead = document.createElement('thead');
-      thead.innerHTML = '<tr><th>Item</th><th>Qty</th><th>Description</th><th>Qty Completed</th></tr>';
+      thead.innerHTML = '<tr><th>Item</th><th>Qty</th><th>Description</th><th>Width</th><th>Height</th><th>Depth</th><th>Qty Completed</th></tr>';
       table.appendChild(thead);
       const tbody = document.createElement('tbody');
       items.forEach(s => {
@@ -182,6 +183,9 @@
           <td>${s.Name || '—'}</td>
           <td>${s.Quantity ?? '—'}</td>
           <td>${s.Description || '—'}</td>
+          <td>${s.Width  ?? '—'}</td>
+          <td>${s.Height ?? '—'}</td>
+          <td>${s.Depth  ?? '—'}</td>
           <td>${s.QuantityCompleted ?? '—'}</td>
         `;
         tbody.appendChild(tr);
@@ -190,11 +194,12 @@
       siDiv.appendChild(table);
     }
 
-    async function loadShipmentItems(woId, siDiv) {
-      if (siCache[woId]) { renderSiContent(siCache[woId], siDiv); return siCache[woId]; }
+    async function loadShipmentItems(pid, woId, siDiv) {
+      const key = `${pid}|${woId}`;
+      if (siCache[key]) { renderSiContent(siCache[key], siDiv); return siCache[key]; }
       siDiv.innerHTML = '<p class="wo-loading">Loading shipment items…</p>';
       try {
-        const records = await fetchShipmentItems(woId);
+        const records = await fetchShipmentItems(pid, woId);
         renderSiContent(records, siDiv);
         return records;
       } catch (err) {
@@ -264,7 +269,7 @@
         row.addEventListener('click', () => {
           const isOpen = row.classList.toggle('open');
           if (isOpen && wid) {
-            loadShipmentItems(wid, siDiv).then(records => {
+            loadShipmentItems(pid, wid, siDiv).then(records => {
               if (qtyCell && records) qtyCell.textContent = records.length;
             });
           }

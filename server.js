@@ -382,9 +382,9 @@ app.get('/api/workorders/:projectId', async (req, res) => {
   }
 });
 
-app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
-  const { workOrderId } = req.params;
-  const base = `https://app.innergy.com/api/v2-unstable/project-management/work-orders/${encodeURIComponent(workOrderId)}/shipment-items`;
+app.get('/api/shipmentitems/:projectId/:workOrderId', async (req, res) => {
+  const { projectId, workOrderId } = req.params;
+  const base = `https://app.innergy.com/api/v2-unstable/project-management/shipments/items`;
 
   try {
     const allRecords = [];
@@ -392,7 +392,7 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
     const take = 500;
 
     while (true) {
-      const url = `${base}?take=${take}&skip=${skip}`;
+      const url = `${base}?projectId=${encodeURIComponent(projectId)}&workOrderId=${encodeURIComponent(workOrderId)}&take=${take}&skip=${skip}`;
       console.log('Fetching:', url);
 
       const response = await httpsGet(url, {
@@ -430,10 +430,13 @@ app.get('/api/shipmentitems/:workOrderId', async (req, res) => {
     allRecords.sort((a, b) => parseInt(a.EngineeringId, 10) - parseInt(b.EngineeringId, 10));
     console.log(`Shipment items for work order ${workOrderId}: ${allRecords.length} total`);
     const slim = allRecords.map(r => ({
-      Name: r.Name || r.ItemName || r.name,
-      Quantity: Math.round((r.Quantity ?? r.Qty ?? r.quantity ?? r.qty) * 1000) / 1000,
-      Description: r.Description || r.description,
-      QuantityCompleted: Math.round((r.QuantityCompleted ?? 0) * 1000) / 1000
+      Name:              r.Name || r.ItemName || r.name,
+      Quantity:          Math.round((r.Quantity ?? r.Qty ?? r.quantity ?? r.qty ?? 0) * 1000) / 1000,
+      Description:       r.Description || r.description,
+      QuantityCompleted: Math.round((r.QuantityCompleted ?? 0) * 1000) / 1000,
+      Width:             r.Width  ?? r.width  ?? null,
+      Height:            r.Height ?? r.height ?? null,
+      Depth:             r.Depth  ?? r.depth  ?? null
     }));
     res.json(slim);
   } catch (err) {
