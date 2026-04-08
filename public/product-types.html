@@ -68,6 +68,11 @@
     .btn-cancel:hover { background: #f0f0f0; }
     .btn-delete { color: #bbb; }
     .btn-delete:hover { color: #c0392b; background: #fdecea; }
+
+    .drag-handle { cursor: grab; color: #bbb; font-size: 16px; text-align: center; user-select: none; padding: 0 4px; }
+    .drag-handle:hover { color: #888; }
+    tr.dragging { opacity: 0.4; }
+    tr.drag-over td { border-top: 2px solid #3a7d44; }
   </style>
 </head>
 <body>
@@ -116,13 +121,14 @@
       <table>
         <thead>
           <tr>
+            <th style="width:32px"></th>
             <th style="width:90px">Code</th>
             <th>Description</th>
             <th style="width:110px"></th>
           </tr>
         </thead>
         <tbody id="records-body">
-          <tr><td colspan="3" style="color:#888;font-style:italic;padding:12px">Loading...</td></tr>
+          <tr><td colspan="4" style="color:#888;font-style:italic;padding:12px">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -139,14 +145,14 @@
         const records = await res.json();
         renderTable(records);
       } catch {
-        tbody.innerHTML = '<tr><td colspan="3" style="color:red;padding:12px">Failed to load records.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="color:red;padding:12px">Failed to load records.</td></tr>';
       }
     }
 
     function renderTable(records) {
       countEl.textContent = records.length ? `${records.length} type${records.length !== 1 ? 's' : ''}` : '';
       if (!records.length) {
-        tbody.innerHTML = '<tr><td colspan="3" style="color:#888;font-style:italic;padding:12px">No product types yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="color:#888;font-style:italic;padding:12px">No product types yet.</td></tr>';
         return;
       }
       tbody.innerHTML = records.map(r => viewRow(r)).join('');
@@ -155,7 +161,8 @@
 
     function viewRow(r) {
       return `
-        <tr data-id="${r._id}" data-code="${esc(r.code)}" data-description="${esc(r.description)}">
+        <tr draggable="true" data-id="${r._id}" data-code="${esc(r.code)}" data-description="${esc(r.description)}">
+          <td class="drag-handle" title="Drag to reorder">&#x2807;</td>
           <td class="code-cell">${esc(r.code)}</td>
           <td>${esc(r.description)}</td>
           <td>
@@ -172,7 +179,9 @@
       const code = tr.dataset.code;
       const desc = tr.dataset.description;
       tr.classList.add('editing');
+      tr.draggable = false;
       tr.innerHTML = `
+        <td></td>
         <td><input class="edit-input" data-field="code" type="text" value="${code}" maxlength="2" style="width:66px"></td>
         <td><input class="edit-input" data-field="description" type="text" value="${desc}"></td>
         <td>
@@ -275,6 +284,52 @@
     function esc(str) {
       return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
+
+    // --- Drag-and-drop reordering ---
+    let dragRow = null;
+
+    tbody.addEventListener('dragstart', e => {
+      const tr = e.target.closest('tr');
+      if (!tr || !tr.dataset.id) return;
+      dragRow = tr;
+      tr.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    tbody.addEventListener('dragend', e => {
+      if (dragRow) dragRow.classList.remove('dragging');
+      dragRow = null;
+      tbody.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+    });
+
+    tbody.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const tr = e.target.closest('tr');
+      if (!tr || tr === dragRow || !tr.dataset.id) return;
+      tbody.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+      tr.classList.add('drag-over');
+    });
+
+    tbody.addEventListener('drop', async e => {
+      e.preventDefault();
+      const target = e.target.closest('tr');
+      if (!target || !dragRow || target === dragRow || !target.dataset.id) return;
+      tbody.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+      tbody.insertBefore(dragRow, target);
+      dragRow.classList.remove('dragging');
+
+      // Collect new order and persist
+      const ids = [...tbody.querySelectorAll('tr[data-id]')].map(r => r.dataset.id);
+      try {
+        await fetch('/api/product-types/reorder', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids })
+        });
+      } catch { /* silent — visual order already updated */ }
+      dragRow = null;
+    });
 
     loadRecords();
   </script>

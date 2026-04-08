@@ -60,7 +60,8 @@ const WorkCenter = mongoose.model('WorkCenter', workCenterSchema);
 
 const productTypeSchema = new mongoose.Schema({
   code:        { type: String, required: true, unique: true, trim: true, match: /^[a-zA-Z0-9]{2}$/ },
-  description: { type: String, required: true, trim: true }
+  description: { type: String, required: true, trim: true },
+  order:       { type: Number, default: 0 }
 }, { timestamps: true });
 const ProductType = mongoose.model('ProductType', productTypeSchema);
 
@@ -240,7 +241,7 @@ app.get('/product-types', requireAuth, (req, res) => {
 // Product Types API
 app.get('/api/product-types', async (req, res) => {
   try {
-    const records = await ProductType.find().sort({ code: 1 });
+    const records = await ProductType.find().sort({ order: 1, code: 1 });
     res.json(records);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -256,6 +257,17 @@ app.post('/api/product-types', async (req, res) => {
     if (exists) return res.status(409).json({ error: `Product type code "${code}" already exists.` });
     const record = await ProductType.create({ code, description });
     res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch('/api/product-types/reorder', async (req, res) => {
+  const { ids } = req.body;
+  if (!Array.isArray(ids)) return res.status(400).json({ error: 'ids array is required.' });
+  try {
+    await Promise.all(ids.map((id, i) => ProductType.findByIdAndUpdate(id, { order: i })));
+    res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
