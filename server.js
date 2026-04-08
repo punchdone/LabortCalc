@@ -82,9 +82,15 @@ const finishTypeSchema = new mongoose.Schema({
 }, { timestamps: true });
 const FinishType = mongoose.model('FinishType', finishTypeSchema);
 
+const groupSchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true, trim: true }
+}, { timestamps: true });
+const Group = mongoose.model('Group', groupSchema);
+
 const catalogueSchema = new mongoose.Schema({
   configuration: { type: String, required: true, trim: true },
   configCode:    { type: String, trim: true, match: /^[a-zA-Z0-9]{0,5}$/ },
+  group:         { type: String, trim: true },
   description:   { type: String, trim: true },
   productLine:   { type: String, trim: true },
   type:          { type: String, trim: true },
@@ -553,6 +559,29 @@ app.delete('/api/users/:id', requireAdmin, async (req, res) => {
   }
 });
 
+// Groups API
+app.get('/api/groups', async (req, res) => {
+  try {
+    const records = await Group.find().sort({ name: 1 });
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/groups', async (req, res) => {
+  const { name } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ error: 'Group name is required.' });
+  try {
+    const exists = await Group.findOne({ name: name.trim() });
+    if (exists) return res.status(409).json({ error: `Group "${name.trim()}" already exists.` });
+    const record = await Group.create({ name: name.trim() });
+    res.status(201).json(record);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Catalogue API
 app.get('/api/catalogue', async (req, res) => {
   try {
@@ -578,7 +607,7 @@ app.delete('/api/upload', requireAuth, (req, res) => {
 });
 
 app.post('/api/catalogue', async (req, res) => {
-  const { configuration, configCode, description, productLine, type,
+  const { configuration, configCode, description, productLine, type, group,
           widthMin, widthMax, widthStd,
           heightMin, heightMax, heightStd,
           depthMin, depthMax, depthStd,
@@ -599,6 +628,7 @@ app.post('/api/catalogue', async (req, res) => {
       description,
       productLine,
       type,
+      group: group || undefined,
       widthMin:  toNum(widthMin),  widthMax:  toNum(widthMax),  widthStd:  toNum(widthStd),
       heightMin: toNum(heightMin), heightMax: toNum(heightMax), heightStd: toNum(heightStd),
       depthMin:  toNum(depthMin),  depthMax:  toNum(depthMax),  depthStd:  toNum(depthStd),
@@ -628,7 +658,7 @@ app.post('/api/catalogue', async (req, res) => {
 app.patch('/api/catalogue/:id', async (req, res) => {
   const toNum = v => (v !== '' && v != null) ? Number(v) : null;
   const {
-    configuration, configCode, productLine, type,
+    configuration, configCode, productLine, type, group,
     widthMin, widthMax, widthStd, heightMin, heightMax, heightStd, depthMin, depthMax, depthStd,
     doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
     buyOut, supplierName, supplierPartNo, supplierPrice,
@@ -640,6 +670,7 @@ app.patch('/api/catalogue/:id', async (req, res) => {
     if (configCode     !== undefined) u.configCode     = configCode;
     if (productLine    !== undefined) u.productLine    = productLine;
     if (type           !== undefined) u.type           = type;
+    if (group          !== undefined) u.group          = group;
     if (widthMin       !== undefined) u.widthMin       = toNum(widthMin);
     if (widthMax       !== undefined) u.widthMax       = toNum(widthMax);
     if (widthStd       !== undefined) u.widthStd       = toNum(widthStd);
