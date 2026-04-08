@@ -202,81 +202,102 @@
           </fieldset>
         </div>
 
-        <!-- Row 3: details box + dimensions (hidden when Buy Out) -->
-        <div id="details-dim-row" class="form-row">
-          <fieldset style="border:none;padding:0;margin:0;">
-            <div class="details-box">
-              <legend>Details</legend>
-              <div class="form-field narrow">
-                <label for="doorQty">Door Qty</label>
-                <input type="number" id="doorQty" value="0" min="0" step="1">
+        <!-- Row 3: details + price levels, then dimensions below (hidden when Buy Out) -->
+        <div id="details-dim-row">
+          <div class="form-row">
+            <fieldset style="border:none;padding:0;margin:0;">
+              <div class="details-box">
+                <legend>Details</legend>
+                <div class="form-field narrow">
+                  <label for="doorQty">Door Qty</label>
+                  <input type="number" id="doorQty" value="0" min="0" step="1">
+                </div>
+                <div class="form-field narrow">
+                  <label for="topDrawerQty">Top Drawer Quantity</label>
+                  <input type="number" id="topDrawerQty" value="0" min="0" step="1">
+                </div>
+                <div class="form-field narrow">
+                  <label for="lowerDrawerQty">Lower Drawer Quantity</label>
+                  <input type="number" id="lowerDrawerQty" value="0" min="0" step="1">
+                </div>
+                <div class="form-field narrow">
+                  <label for="shelfQty">Shelf Quantity</label>
+                  <input type="number" id="shelfQty" value="0" min="0" step="1">
+                </div>
+                <div class="form-field narrow">
+                  <label for="partitionQty">Partition Quantity</label>
+                  <input type="number" id="partitionQty" value="0" min="0" step="1">
+                </div>
+                <div class="checkbox-field">
+                  <input type="checkbox" id="finInt">
+                  <label for="finInt">Finished Interior</label>
+                </div>
+                <div class="checkbox-field">
+                  <input type="checkbox" id="faceFrame">
+                  <label for="faceFrame">Face Frame</label>
+                </div>
+                <div class="checkbox-field">
+                  <input type="checkbox" id="multiFace">
+                  <label for="multiFace">Multi-Face</label>
+                </div>
+                <div class="checkbox-field">
+                  <input type="checkbox" id="angled">
+                  <label for="angled">Angled</label>
+                </div>
               </div>
-              <div class="form-field narrow">
-                <label for="topDrawerQty">Top Drawer Quantity</label>
-                <input type="number" id="topDrawerQty" value="0" min="0" step="1">
-              </div>
-              <div class="form-field narrow">
-                <label for="lowerDrawerQty">Lower Drawer Quantity</label>
-                <input type="number" id="lowerDrawerQty" value="0" min="0" step="1">
-              </div>
-              <div class="form-field narrow">
-                <label for="shelfQty">Shelf Quantity</label>
-                <input type="number" id="shelfQty" value="0" min="0" step="1">
-              </div>
-              <div class="form-field narrow">
-                <label for="partitionQty">Partition Quantity</label>
-                <input type="number" id="partitionQty" value="0" min="0" step="1">
-              </div>
-              <div class="checkbox-field">
-                <input type="checkbox" id="finInt">
-                <label for="finInt">Finished Interior</label>
-              </div>
-              <div class="checkbox-field">
-                <input type="checkbox" id="faceFrame">
-                <label for="faceFrame">Face Frame</label>
-              </div>
-              <div class="checkbox-field">
-                <input type="checkbox" id="multiFace">
-                <label for="multiFace">Multi-Face</label>
-              </div>
-              <div class="checkbox-field">
-                <input type="checkbox" id="angled">
-                <label for="angled">Angled</label>
-              </div>
+            </fieldset>
+            <div class="dim-wrap">
+              <label>Price Levels</label>
+              <table class="dim-grid">
+                <thead>
+                  <tr><th>Level</th><th>Price</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="dim-label">1</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="priceLevel1" placeholder="—" step="0.01" min="0"></div></td></tr>
+                  <tr><td class="dim-label">2</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="priceLevel2" placeholder="—" step="0.01" min="0"></div></td></tr>
+                  <tr><td class="dim-label">3</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="priceLevel3" placeholder="—" step="0.01" min="0"></div></td></tr>
+                  <tr><td class="dim-label">4</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="priceLevel4" placeholder="—" step="0.01" min="0"></div></td></tr>
+                  <tr><td class="dim-label">5</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="priceLevel5" placeholder="—" step="0.01" min="0"></div></td></tr>
+                  <tr><td class="dim-label">6</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="priceLevel6" placeholder="—" step="0.01" min="0"></div></td></tr>
+                  <tr><td class="dim-label">7</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="priceLevel7" placeholder="—" step="0.01" min="0"></div></td></tr>
+                </tbody>
+              </table>
             </div>
-          </fieldset>
-          <div class="dim-wrap">
-            <label>Dimensions</label>
-            <table class="dim-grid">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Min</th>
-                  <th>Max</th>
-                  <th>Standard</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="dim-label">Width</td>
-                  <td><input type="number" id="widthMin" placeholder="—" step="any" min="0"></td>
-                  <td><input type="number" id="widthMax" placeholder="—" step="any" min="0"></td>
-                  <td><input type="number" id="widthStd" placeholder="—" step="any" min="0"></td>
-                </tr>
-                <tr>
-                  <td class="dim-label">Height</td>
-                  <td><input type="number" id="heightMin" placeholder="—" step="any" min="0"></td>
-                  <td><input type="number" id="heightMax" placeholder="—" step="any" min="0"></td>
-                  <td><input type="number" id="heightStd" placeholder="—" step="any" min="0"></td>
-                </tr>
-                <tr>
-                  <td class="dim-label">Depth</td>
-                  <td><input type="number" id="depthMin" placeholder="—" step="any" min="0"></td>
-                  <td><input type="number" id="depthMax" placeholder="—" step="any" min="0"></td>
-                  <td><input type="number" id="depthStd" placeholder="—" step="any" min="0"></td>
-                </tr>
-              </tbody>
-            </table>
+          </div>
+          <div class="form-row">
+            <div class="dim-wrap">
+              <label>Dimensions</label>
+              <table class="dim-grid">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Standard</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="dim-label">Width</td>
+                    <td><input type="number" id="widthMin" placeholder="—" step="any" min="0"></td>
+                    <td><input type="number" id="widthMax" placeholder="—" step="any" min="0"></td>
+                    <td><input type="number" id="widthStd" placeholder="—" step="any" min="0"></td>
+                  </tr>
+                  <tr>
+                    <td class="dim-label">Height</td>
+                    <td><input type="number" id="heightMin" placeholder="—" step="any" min="0"></td>
+                    <td><input type="number" id="heightMax" placeholder="—" step="any" min="0"></td>
+                    <td><input type="number" id="heightStd" placeholder="—" step="any" min="0"></td>
+                  </tr>
+                  <tr>
+                    <td class="dim-label">Depth</td>
+                    <td><input type="number" id="depthMin" placeholder="—" step="any" min="0"></td>
+                    <td><input type="number" id="depthMax" placeholder="—" step="any" min="0"></td>
+                    <td><input type="number" id="depthStd" placeholder="—" step="any" min="0"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -348,6 +369,13 @@
             <th rowspan="2" class="center">Multi-Face</th>
             <th rowspan="2" class="center">Angled</th>
             <th rowspan="2">Price</th>
+            <th rowspan="2">PL1</th>
+            <th rowspan="2">PL2</th>
+            <th rowspan="2">PL3</th>
+            <th rowspan="2">PL4</th>
+            <th rowspan="2">PL5</th>
+            <th rowspan="2">PL6</th>
+            <th rowspan="2">PL7</th>
             <th rowspan="2">Notes</th>
             <th rowspan="2" style="width:36px"></th>
           </tr>
@@ -404,31 +432,50 @@
           </div>
         </fieldset>
       </div>
-      <div id="m-details-dim-row" class="form-row">
-        <fieldset style="border:none;padding:0;margin:0;">
-          <div class="details-box">
-            <legend>Details</legend>
-            <div class="form-field narrow"><label>Door Qty</label><input type="number" id="m-doorQty" min="0" step="1"></div>
-            <div class="form-field narrow"><label>Top Drawer Quantity</label><input type="number" id="m-topDrawerQty" min="0" step="1"></div>
-            <div class="form-field narrow"><label>Lower Drawer Quantity</label><input type="number" id="m-lowerDrawerQty" min="0" step="1"></div>
-            <div class="form-field narrow"><label>Shelf Quantity</label><input type="number" id="m-shelfQty" min="0" step="1"></div>
-            <div class="form-field narrow"><label>Partition Quantity</label><input type="number" id="m-partitionQty" min="0" step="1"></div>
-            <div class="checkbox-field"><input type="checkbox" id="m-finInt"><label for="m-finInt">Finished Interior</label></div>
-            <div class="checkbox-field"><input type="checkbox" id="m-faceFrame"><label for="m-faceFrame">Face Frame</label></div>
-            <div class="checkbox-field"><input type="checkbox" id="m-multiFace"><label for="m-multiFace">Multi-Face</label></div>
-            <div class="checkbox-field"><input type="checkbox" id="m-angled"><label for="m-angled">Angled</label></div>
+      <div id="m-details-dim-row">
+        <div class="form-row">
+          <fieldset style="border:none;padding:0;margin:0;">
+            <div class="details-box">
+              <legend>Details</legend>
+              <div class="form-field narrow"><label>Door Qty</label><input type="number" id="m-doorQty" min="0" step="1"></div>
+              <div class="form-field narrow"><label>Top Drawer Quantity</label><input type="number" id="m-topDrawerQty" min="0" step="1"></div>
+              <div class="form-field narrow"><label>Lower Drawer Quantity</label><input type="number" id="m-lowerDrawerQty" min="0" step="1"></div>
+              <div class="form-field narrow"><label>Shelf Quantity</label><input type="number" id="m-shelfQty" min="0" step="1"></div>
+              <div class="form-field narrow"><label>Partition Quantity</label><input type="number" id="m-partitionQty" min="0" step="1"></div>
+              <div class="checkbox-field"><input type="checkbox" id="m-finInt"><label for="m-finInt">Finished Interior</label></div>
+              <div class="checkbox-field"><input type="checkbox" id="m-faceFrame"><label for="m-faceFrame">Face Frame</label></div>
+              <div class="checkbox-field"><input type="checkbox" id="m-multiFace"><label for="m-multiFace">Multi-Face</label></div>
+              <div class="checkbox-field"><input type="checkbox" id="m-angled"><label for="m-angled">Angled</label></div>
+            </div>
+          </fieldset>
+          <div class="dim-wrap">
+            <label>Price Levels</label>
+            <table class="dim-grid">
+              <thead><tr><th>Level</th><th>Price</th></tr></thead>
+              <tbody>
+                <tr><td class="dim-label">1</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="m-priceLevel1" placeholder="—" step="0.01" min="0"></div></td></tr>
+                <tr><td class="dim-label">2</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="m-priceLevel2" placeholder="—" step="0.01" min="0"></div></td></tr>
+                <tr><td class="dim-label">3</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="m-priceLevel3" placeholder="—" step="0.01" min="0"></div></td></tr>
+                <tr><td class="dim-label">4</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="m-priceLevel4" placeholder="—" step="0.01" min="0"></div></td></tr>
+                <tr><td class="dim-label">5</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="m-priceLevel5" placeholder="—" step="0.01" min="0"></div></td></tr>
+                <tr><td class="dim-label">6</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="m-priceLevel6" placeholder="—" step="0.01" min="0"></div></td></tr>
+                <tr><td class="dim-label">7</td><td><div style="display:flex;align-items:center;gap:2px;"><span style="font-size:12px;color:#444;">$</span><input type="number" id="m-priceLevel7" placeholder="—" step="0.01" min="0"></div></td></tr>
+              </tbody>
+            </table>
           </div>
-        </fieldset>
-        <div class="dim-wrap">
-          <label>Dimensions</label>
-          <table class="dim-grid">
-            <thead><tr><th></th><th>Min</th><th>Max</th><th>Standard</th></tr></thead>
-            <tbody>
-              <tr><td class="dim-label">Width</td><td><input type="number" id="m-widthMin" step="any" min="0"></td><td><input type="number" id="m-widthMax" step="any" min="0"></td><td><input type="number" id="m-widthStd" step="any" min="0"></td></tr>
-              <tr><td class="dim-label">Height</td><td><input type="number" id="m-heightMin" step="any" min="0"></td><td><input type="number" id="m-heightMax" step="any" min="0"></td><td><input type="number" id="m-heightStd" step="any" min="0"></td></tr>
-              <tr><td class="dim-label">Depth</td><td><input type="number" id="m-depthMin" step="any" min="0"></td><td><input type="number" id="m-depthMax" step="any" min="0"></td><td><input type="number" id="m-depthStd" step="any" min="0"></td></tr>
-            </tbody>
-          </table>
+        </div>
+        <div class="form-row">
+          <div class="dim-wrap">
+            <label>Dimensions</label>
+            <table class="dim-grid">
+              <thead><tr><th></th><th>Min</th><th>Max</th><th>Standard</th></tr></thead>
+              <tbody>
+                <tr><td class="dim-label">Width</td><td><input type="number" id="m-widthMin" step="any" min="0"></td><td><input type="number" id="m-widthMax" step="any" min="0"></td><td><input type="number" id="m-widthStd" step="any" min="0"></td></tr>
+                <tr><td class="dim-label">Height</td><td><input type="number" id="m-heightMin" step="any" min="0"></td><td><input type="number" id="m-heightMax" step="any" min="0"></td><td><input type="number" id="m-heightStd" step="any" min="0"></td></tr>
+                <tr><td class="dim-label">Depth</td><td><input type="number" id="m-depthMin" step="any" min="0"></td><td><input type="number" id="m-depthMax" step="any" min="0"></td><td><input type="number" id="m-depthStd" step="any" min="0"></td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <div class="form-row">
@@ -610,6 +657,13 @@
           <td class="center"><span class="badge ${r.multiFace ? 'yes' : 'no'}">${r.multiFace ? 'Yes' : 'No'}</span></td>
           <td class="center"><span class="badge ${r.angled    ? 'yes' : 'no'}">${r.angled    ? 'Yes' : 'No'}</span></td>
           <td>${r.price != null ? '$' + Number(r.price).toFixed(2) : ''}</td>
+          <td>${r.priceLevel1 != null ? '$' + Number(r.priceLevel1).toFixed(2) : ''}</td>
+          <td>${r.priceLevel2 != null ? '$' + Number(r.priceLevel2).toFixed(2) : ''}</td>
+          <td>${r.priceLevel3 != null ? '$' + Number(r.priceLevel3).toFixed(2) : ''}</td>
+          <td>${r.priceLevel4 != null ? '$' + Number(r.priceLevel4).toFixed(2) : ''}</td>
+          <td>${r.priceLevel5 != null ? '$' + Number(r.priceLevel5).toFixed(2) : ''}</td>
+          <td>${r.priceLevel6 != null ? '$' + Number(r.priceLevel6).toFixed(2) : ''}</td>
+          <td>${r.priceLevel7 != null ? '$' + Number(r.priceLevel7).toFixed(2) : ''}</td>
           <td style="max-width:200px; white-space:normal;">${esc(r.notes ?? '')}</td>
           <td><div class="row-actions">
             <button class="btn-edit" data-action="edit" data-id="${r._id}">Edit</button>
@@ -663,6 +717,13 @@
       const multiFace      = document.getElementById('multiFace').checked;
       const angled         = document.getElementById('angled').checked;
       const price          = document.getElementById('price').value;
+      const priceLevel1    = document.getElementById('priceLevel1').value;
+      const priceLevel2    = document.getElementById('priceLevel2').value;
+      const priceLevel3    = document.getElementById('priceLevel3').value;
+      const priceLevel4    = document.getElementById('priceLevel4').value;
+      const priceLevel5    = document.getElementById('priceLevel5').value;
+      const priceLevel6    = document.getElementById('priceLevel6').value;
+      const priceLevel7    = document.getElementById('priceLevel7').value;
       const notes          = document.getElementById('notes').value.trim();
 
       msgEl.className = 'form-msg';
@@ -676,7 +737,9 @@
             widthMin, widthMax, widthStd, heightMin, heightMax, heightStd,
             depthMin, depthMax, depthStd, doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
             buyOut, supplierName, supplierPartNo, supplierPrice,
-            finInt, faceFrame, multiFace, angled, price, notes,
+            finInt, faceFrame, multiFace, angled, price,
+            priceLevel1, priceLevel2, priceLevel3, priceLevel4, priceLevel5, priceLevel6, priceLevel7,
+            notes,
             image: uploadedImagePath || undefined })
         });
         const data = await res.json();
@@ -813,6 +876,13 @@
       document.getElementById('m-depthMax').value  = r.depthMax  ?? '';
       document.getElementById('m-depthStd').value  = r.depthStd  ?? '';
       document.getElementById('m-price').value     = r.price  ?? '';
+      document.getElementById('m-priceLevel1').value = r.priceLevel1 ?? '';
+      document.getElementById('m-priceLevel2').value = r.priceLevel2 ?? '';
+      document.getElementById('m-priceLevel3').value = r.priceLevel3 ?? '';
+      document.getElementById('m-priceLevel4').value = r.priceLevel4 ?? '';
+      document.getElementById('m-priceLevel5').value = r.priceLevel5 ?? '';
+      document.getElementById('m-priceLevel6').value = r.priceLevel6 ?? '';
+      document.getElementById('m-priceLevel7').value = r.priceLevel7 ?? '';
       document.getElementById('m-notes').value     = r.notes  ?? '';
 
       editImagePath = r.image || null;
@@ -875,6 +945,13 @@
         depthMax:       document.getElementById('m-depthMax').value,
         depthStd:       document.getElementById('m-depthStd').value,
         price:          document.getElementById('m-price').value,
+        priceLevel1:    document.getElementById('m-priceLevel1').value,
+        priceLevel2:    document.getElementById('m-priceLevel2').value,
+        priceLevel3:    document.getElementById('m-priceLevel3').value,
+        priceLevel4:    document.getElementById('m-priceLevel4').value,
+        priceLevel5:    document.getElementById('m-priceLevel5').value,
+        priceLevel6:    document.getElementById('m-priceLevel6').value,
+        priceLevel7:    document.getElementById('m-priceLevel7').value,
         notes:          document.getElementById('m-notes').value.trim(),
         image:          editImagePath || ''
       };

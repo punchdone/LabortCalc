@@ -117,6 +117,13 @@ const catalogueSchema = new mongoose.Schema({
   multiFace:     { type: Boolean, default: false },
   angled:        { type: Boolean, default: false },
   price:         { type: Number, default: null },
+  priceLevel1:   { type: Number, default: null },
+  priceLevel2:   { type: Number, default: null },
+  priceLevel3:   { type: Number, default: null },
+  priceLevel4:   { type: Number, default: null },
+  priceLevel5:   { type: Number, default: null },
+  priceLevel6:   { type: Number, default: null },
+  priceLevel7:   { type: Number, default: null },
   notes:         { type: String, trim: true },
   image:         { type: String, trim: true }
 }, { timestamps: true });
@@ -613,7 +620,9 @@ app.post('/api/catalogue', async (req, res) => {
           depthMin, depthMax, depthStd,
           doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
           buyOut, supplierName, supplierPartNo, supplierPrice,
-          finInt, faceFrame, multiFace, angled, price, notes, image } = req.body;
+          finInt, faceFrame, multiFace, angled, price,
+          priceLevel1, priceLevel2, priceLevel3, priceLevel4, priceLevel5, priceLevel6, priceLevel7,
+          notes, image } = req.body;
   if (!configuration) {
     return res.status(400).json({ error: 'configuration is required.' });
   }
@@ -646,6 +655,13 @@ app.post('/api/catalogue', async (req, res) => {
       multiFace: Boolean(multiFace),
       angled:    Boolean(angled),
       price:     (price !== '' && price != null) ? Number(price) : null,
+      priceLevel1: toNum(priceLevel1),
+      priceLevel2: toNum(priceLevel2),
+      priceLevel3: toNum(priceLevel3),
+      priceLevel4: toNum(priceLevel4),
+      priceLevel5: toNum(priceLevel5),
+      priceLevel6: toNum(priceLevel6),
+      priceLevel7: toNum(priceLevel7),
       notes:     notes || undefined,
       image:     image || undefined
     });
@@ -662,7 +678,9 @@ app.patch('/api/catalogue/:id', async (req, res) => {
     widthMin, widthMax, widthStd, heightMin, heightMax, heightStd, depthMin, depthMax, depthStd,
     doorQty, topDrawerQty, lowerDrawerQty, shelfQty, partitionQty,
     buyOut, supplierName, supplierPartNo, supplierPrice,
-    finInt, faceFrame, multiFace, angled, price, notes, image
+    finInt, faceFrame, multiFace, angled, price,
+    priceLevel1, priceLevel2, priceLevel3, priceLevel4, priceLevel5, priceLevel6, priceLevel7,
+    notes, image
   } = req.body;
   try {
     const u = {};
@@ -694,6 +712,13 @@ app.patch('/api/catalogue/:id', async (req, res) => {
     if (multiFace      !== undefined) u.multiFace      = Boolean(multiFace);
     if (angled         !== undefined) u.angled         = Boolean(angled);
     if (price          !== undefined) u.price          = toNum(price);
+    if (priceLevel1    !== undefined) u.priceLevel1    = toNum(priceLevel1);
+    if (priceLevel2    !== undefined) u.priceLevel2    = toNum(priceLevel2);
+    if (priceLevel3    !== undefined) u.priceLevel3    = toNum(priceLevel3);
+    if (priceLevel4    !== undefined) u.priceLevel4    = toNum(priceLevel4);
+    if (priceLevel5    !== undefined) u.priceLevel5    = toNum(priceLevel5);
+    if (priceLevel6    !== undefined) u.priceLevel6    = toNum(priceLevel6);
+    if (priceLevel7    !== undefined) u.priceLevel7    = toNum(priceLevel7);
     if (notes          !== undefined) u.notes          = notes;
     if (image          !== undefined) u.image          = image;
     const record = await Catalogue.findByIdAndUpdate(req.params.id, u, { new: true });
